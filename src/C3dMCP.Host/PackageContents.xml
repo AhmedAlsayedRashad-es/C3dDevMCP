@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ApplicationPackage SchemaVersion="1.0"
+                    Name="C3dMCP"
+                    Description="C3dMCP host: HTTP-driven hot-reload and run lifecycle for Civil3D add-in development"
+                    AppVersion="0.1.0"
+                    Author="First Option"
+                    ProductCode="{6A2E7C40-9D31-4F0B-8C55-0C3DACC00001}"
+                    UpgradeCode="{6A2E7C40-9D31-4F0B-8C55-0C3DACC00002}">
+
+  <CompanyDetails Name="First Option"/>
+
+  <Components>
+    <!-- Civil 3D 2024 (AutoCAD series R24.3+) -->
+    <ComponentEntry AppName="C3dMCP" AppType=".Net" ModuleName="./Contents/2024/C3dMCP.Host.dll"
+                    AppDescription="C3dMCP host" LoadOnAutoCADStartup="True">
+      <RuntimeRequirements OS="Win64" SeriesMin="R24.3" SeriesMax="R24.9"/>
+      <Commands GroupName="C3dMCP">
+        <Command Local="C3DMCP" Global="C3DMCP"/>
+        <Command Local="C3DMCP_IDLEPING" Global="C3DMCP_IDLEPING"/>
+      </Commands>
+    </ComponentEntry>
+
+    <!-- Civil 3D 2025 (series R25.0) -->
+    <ComponentEntry AppName="C3dMCP" AppType=".Net" ModuleName="./Contents/2025/C3dMCP.Host.dll"
+                    AppDescription="C3dMCP host" LoadOnAutoCADStartup="True">
+      <RuntimeRequirements OS="Win64" SeriesMin="R25.0" SeriesMax="R25.0"/>
+      <Commands GroupName="C3dMCP">
+        <Command Local="C3DMCP" Global="C3DMCP"/>
+        <Command Local="C3DMCP_IDLEPING" Global="C3DMCP_IDLEPING"/>
+      </Commands>
+    </ComponentEntry>
+
+    <!-- Civil 3D 2026 (series R25.1) -->
+    <ComponentEntry AppName="C3dMCP" AppType=".Net" ModuleName="./Contents/2026/C3dMCP.Host.dll"
+                    AppDescription="C3dMCP host" LoadOnAutoCADStartup="True">
+      <RuntimeRequirements OS="Win64" SeriesMin="R25.1" SeriesMax="R25.9"/>
+      <Commands GroupName="C3dMCP">
+        <Command Local="C3DMCP" Global="C3DMCP"/>
+        <Command Local="C3DMCP_IDLEPING" Global="C3DMCP_IDLEPING"/>
+      </Commands>
+    </ComponentEntry>
+  </Components>
+</ApplicationPackage>

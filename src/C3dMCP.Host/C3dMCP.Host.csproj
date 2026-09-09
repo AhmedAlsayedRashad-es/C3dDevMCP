@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The stable C3dMCP bundle add-in. Build with -c R2024 / R2025 / R2026 (the R20xx constant
+       selects the Civil3D reference assemblies and the target framework). Never hot-reloaded. -->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">R2024</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <PlatformTarget>x64</PlatformTarget>
+    <OutputType>Library</OutputType>
+    <RootNamespace>C3dMCP.Host</RootNamespace>
+    <AssemblyName>C3dMCP.Host</AssemblyName>
+    <TargetFramework>net48</TargetFramework>
+    <Deterministic>true</Deterministic>
+    <UseWPF>true</UseWPF>
+    <EnableDefaultPageItems>false</EnableDefaultPageItems>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <Configurations>Debug;Release;R2024;R2025;R2026</Configurations>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'R2024' ">
+    <DefineConstants>DEBUG;R2024</DefineConstants>
+    <TargetFramework>net48</TargetFramework>
+    <Civil3dVersion>2024</Civil3dVersion>
+    <OutputPath>bin\R2024\</OutputPath>
+    <DebugType>portable</DebugType>
+    <StartAction>Program</StartAction>
+    <StartProgram>$(ProgramW6432)\Autodesk\AutoCAD 2024\acad.exe</StartProgram>
+    <StartArguments>/ld "$(ProgramW6432)\Autodesk\AutoCAD 2024\AeccBase.dbx" /p "&lt;&lt;C3D_Metric&gt;&gt;" /product C3D /language en-US</StartArguments>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'R2025' ">
+    <DefineConstants>DEBUG;R2025</DefineConstants>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Civil3dVersion>2025</Civil3dVersion>
+    <OutputPath>bin\R2025\</OutputPath>
+    <DebugType>portable</DebugType>
+    <UseWindowsForms>true</UseWindowsForms>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <StartAction>Program</StartAction>
+    <StartProgram>$(ProgramW6432)\Autodesk\AutoCAD 2025\acad.exe</StartProgram>
+    <StartArguments>/ld "$(ProgramW6432)\Autodesk\AutoCAD 2025\AeccBase.dbx" /p "&lt;&lt;C3D_Metric&gt;&gt;" /product C3D /language en-US</StartArguments>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'R2026' or '$(Configuration)' == 'Debug' or '$(Configuration)' == 'Release' ">
+    <DefineConstants>DEBUG;R2026</DefineConstants>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Civil3dVersion>2026</Civil3dVersion>
+    <OutputPath>bin\R2026\</OutputPath>
+    <DebugType>portable</DebugType>
+    <UseWindowsForms>true</UseWindowsForms>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition=" '$(Configuration)'=='R2024' ">
+      <ItemGroup>
+        <PackageReference Include="Speckle.AutoCAD.API" Version="2024.0.0" IncludeAssets="build; compile" PrivateAssets="All" />
+        <PackageReference Include="Speckle.Civil3D.API" Version="2024.0.0" IncludeAssets="build; compile" PrivateAssets="All" />
+      </ItemGroup>
+    </When>
+    <When Condition=" '$(Configuration)'=='R2025' ">
+      <ItemGroup>
+        <PackageReference Include="Speckle.AutoCAD.API" Version="2025.0.0" IncludeAssets="build; compile" PrivateAssets="All" />
+        <PackageReference Include="Speckle.Civil3D.API" Version="2025.0.0" IncludeAssets="build; compile" PrivateAssets="All" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="Speckle.AutoCAD.API" Version="2026.0.0" IncludeAssets="build; compile" PrivateAssets="All" />
+        <PackageReference Include="Speckle.Civil3D.API" Version="2026.0.0" IncludeAssets="build; compile" PrivateAssets="All" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+  <ItemGroup>
+    <None Include="PackageContents.xml" />
+  </ItemGroup>
+
+  <!-- The bridge libraries: ONE copy per process (the host's); the resolver hands a reloaded
+       payload back to these. netstandard2.0, no System.Text.Json inside them. -->
+  <ItemGroup>
+    <ProjectReference Include="..\C3dMCP.Sdk\C3dMCP.Sdk.csproj" />
+    <ProjectReference Include="..\C3dMCP.Engine\C3dMCP.Engine.csproj" />
+  </ItemGroup>
+
+  <!-- Only the host references System.Text.Json (status/instance JSON). On net48 the package's
+       polyfills ship beside it in the bundle folder and the resolver loads them from there. -->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+  <!-- Deploy the bundle under %APPDATA%\Autodesk\ApplicationPlugins so Civil3D auto-loads it.
+       PackageContents.xml at the bundle root; build output into Contents\<year>. -->
+  <Target Name="DeployToCivil3DBundle" AfterTargets="Build" Condition="'$(Civil3dVersion)' != '' and '$(SkipC3DDeploy)' != 'true'">
+    <PropertyGroup>
+      <C3DBundleDir>$(AppData)\Autodesk\ApplicationPlugins\C3dMCP.bundle</C3DBundleDir>
+      <C3DBundleContentsDir>$(C3DBundleDir)\Contents\$(Civil3dVersion)</C3DBundleContentsDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(C3DBundleContentsDir)" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\PackageContents.xml" DestinationFolder="$(C3DBundleDir)" SkipUnchangedFiles="true" />
+    <ItemGroup>
+      <C3DBundleFiles Include="$(TargetDir)*.dll;$(TargetDir)*.pdb;$(TargetDir)*.json" />
+    </ItemGroup>
+    <Copy SourceFiles="@(C3DBundleFiles)" DestinationFolder="$(C3DBundleContentsDir)" SkipUnchangedFiles="true" />
+    <Message Importance="high" Text="C3dMCP.Host deployed to $(C3DBundleContentsDir)" />
+  </Target>
+
+  <Target Name="CleanCivil3DBundle" AfterTargets="Clean" Condition="'$(Civil3dVersion)' != ''">
+    <RemoveDir Directories="$(AppData)\Autodesk\ApplicationPlugins\C3dMCP.bundle\Contents\$(Civil3dVersion)" />
+  </Target>
+</Project>
