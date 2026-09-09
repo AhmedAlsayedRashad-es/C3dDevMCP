@@ -17,7 +17,7 @@ namespace C3dMCP.Host.Palette
             _set = new PaletteSet("C3dMCP", PaletteId)
             {
                 Style = PaletteSetStyles.ShowPropertiesMenu | PaletteSetStyles.ShowAutoHideButton | PaletteSetStyles.ShowCloseButton,
-                MinimumSize = new System.Drawing.Size(320, 240),
+                MinimumSize = new System.Drawing.Size(340, 300),
                 KeepFocus = false,
             };
             _set.AddVisual("C3dMCP", _view);

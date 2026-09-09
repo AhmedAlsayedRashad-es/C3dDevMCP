@@ -75,6 +75,8 @@
 
   <ItemGroup>
     <None Include="PackageContents.xml" />
+    <Page Include="Palette\Icons.xaml" />
+    <Page Include="Palette\PaletteView.xaml" />
   </ItemGroup>
 
   <!-- The bridge libraries: ONE copy per process (the host's); the resolver hands a reloaded

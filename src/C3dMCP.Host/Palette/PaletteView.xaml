@@ -1,0 +1,391 @@
+<UserControl x:Class="C3dMCP.Host.Palette.PaletteView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:C3dMCP.Host.Palette"
+             Background="#181818" Foreground="#E6E6E6" FontFamily="Segoe UI" FontSize="12"
+             MinWidth="300">
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Icons.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+
+      <SolidColorBrush x:Key="Bg" Color="#181818"/>
+      <SolidColorBrush x:Key="Panel" Color="#2B2B2B"/>
+      <SolidColorBrush x:Key="Well" Color="#1E1E1E"/>
+      <SolidColorBrush x:Key="Raised" Color="#333333"/>
+      <SolidColorBrush x:Key="Line" Color="#3C3C3C"/>
+      <SolidColorBrush x:Key="Text" Color="#E6E6E6"/>
+      <SolidColorBrush x:Key="Muted" Color="#9A9A9A"/>
+      <SolidColorBrush x:Key="Dim" Color="#747474"/>
+      <SolidColorBrush x:Key="Active" Color="#36C2B4"/>
+      <SolidColorBrush x:Key="ActiveBg" Color="#173B38"/>
+      <SolidColorBrush x:Key="Green" Color="#63BD73"/>
+      <SolidColorBrush x:Key="GreenBg" Color="#203828"/>
+      <SolidColorBrush x:Key="Amber" Color="#D8A347"/>
+      <SolidColorBrush x:Key="AmberBg" Color="#46371D"/>
+      <SolidColorBrush x:Key="Red" Color="#E16C69"/>
+      <SolidColorBrush x:Key="RedBg" Color="#472625"/>
+      <SolidColorBrush x:Key="Select" Color="#324A51"/>
+
+      <local:StateBrushConverter x:Key="StateBrush"/>
+      <local:StateBrushConverter x:Key="StateBg" Background="True"/>
+      <local:SrcBrushConverter x:Key="SrcBrush"/>
+      <local:BoolToVisibilityConverter x:Key="Vis"/>
+      <local:BoolToBrushConverter x:Key="OkBrush" True="#63BD73" False="#E16C69"/>
+      <local:StreakConverter x:Key="Streak"/>
+      <local:UpperConverter x:Key="Upper"/>
+
+      <Style x:Key="Ico" TargetType="Path">
+        <Setter Property="Stroke" Value="{Binding RelativeSource={RelativeSource AncestorType=ContentControl}, Path=Foreground, FallbackValue=#E6E6E6}"/>
+        <Setter Property="StrokeThickness" Value="1.5"/>
+        <Setter Property="Width" Value="16"/><Setter Property="Height" Value="16"/>
+        <Setter Property="Stretch" Value="None"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+      </Style>
+      <Style x:Key="SectionHeader" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Raised}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Line}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,1"/>
+        <Setter Property="Padding" Value="8,5"/>
+      </Style>
+      <Style x:Key="H" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11"/><Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource Text}"/><Setter Property="VerticalAlignment" Value="Center"/>
+      </Style>
+      <Style x:Key="HRight" TargetType="TextBlock" BasedOn="{StaticResource H}">
+        <Setter Property="FontWeight" Value="Normal"/><Setter Property="Foreground" Value="{StaticResource Muted}"/><Setter Property="FontSize" Value="10"/>
+      </Style>
+      <Style x:Key="Mono" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Consolas"/><Setter Property="FontSize" Value="11"/><Setter Property="Foreground" Value="{StaticResource Text}"/>
+      </Style>
+      <Style x:Key="Btn" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource Raised}"/>
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Line}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="Button">
+              <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              </Border>
+              <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="B" Property="BorderBrush" Value="{StaticResource Muted}"/></Trigger>
+                <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4"/></Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+      <Style x:Key="Primary" TargetType="Button" BasedOn="{StaticResource Btn}">
+        <Setter Property="Background" Value="{StaticResource ActiveBg}"/><Setter Property="BorderBrush" Value="{StaticResource Active}"/><Setter Property="FontWeight" Value="SemiBold"/>
+      </Style>
+      <Style x:Key="Danger" TargetType="Button" BasedOn="{StaticResource Btn}">
+        <Setter Property="Background" Value="{StaticResource RedBg}"/><Setter Property="BorderBrush" Value="{StaticResource Red}"/>
+      </Style>
+      <Style x:Key="Chip" TargetType="Border">
+        <Setter Property="Padding" Value="6,1"/><Setter Property="BorderThickness" Value="1"/><Setter Property="VerticalAlignment" Value="Center"/>
+      </Style>
+      <Style TargetType="CheckBox"><Setter Property="Foreground" Value="{StaticResource Muted}"/><Setter Property="FontSize" Value="11"/><Setter Property="VerticalAlignment" Value="Center"/></Style>
+      <Style TargetType="TextBox">
+        <Setter Property="Background" Value="{StaticResource Well}"/><Setter Property="Foreground" Value="{StaticResource Text}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Line}"/><Setter Property="FontFamily" Value="Consolas"/><Setter Property="FontSize" Value="11"/><Setter Property="Padding" Value="4,2"/>
+        <Setter Property="CaretBrush" Value="{StaticResource Text}"/>
+      </Style>
+      <Style TargetType="ScrollBar"><Setter Property="Width" Value="8"/></Style>
+    </ResourceDictionary>
+  </UserControl.Resources>
+
+  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <StackPanel>
+      <!-- title bar -->
+      <Border Background="{StaticResource Panel}" Padding="8,6" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1">
+        <DockPanel>
+          <ContentControl Foreground="{StaticResource Active}" VerticalAlignment="Center"><Path Style="{StaticResource Ico}" Data="{StaticResource icon.c3dmcp-app}"/></ContentControl>
+          <TextBlock Text="C3dMCP" FontWeight="Bold" FontSize="13" Margin="6,0,8,0" VerticalAlignment="Center"/>
+          <TextBlock Text="Agent activity" Foreground="{StaticResource Muted}" VerticalAlignment="Center"/>
+          <Ellipse Width="7" Height="7" DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center" Fill="{Binding MainThreadOk, Converter={StaticResource OkBrush}}" ToolTip="main thread responsive"/>
+        </DockPanel>
+      </Border>
+
+      <!-- INSTANCE -->
+      <Border Style="{StaticResource SectionHeader}">
+        <DockPanel>
+          <ContentControl Foreground="{StaticResource Muted}"><Path Style="{StaticResource Ico}" Data="{StaticResource icon.instance}"/></ContentControl>
+          <TextBlock Style="{StaticResource H}" Text="INSTANCE" Margin="6,0,0,0"/>
+          <TextBlock Style="{StaticResource HRight}" Text="LOCAL" DockPanel.Dock="Right" HorizontalAlignment="Right"/>
+        </DockPanel>
+      </Border>
+      <Border Background="{StaticResource Panel}" Padding="8,8">
+        <StackPanel>
+          <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <StackPanel>
+              <TextBlock Text="{Binding Civil}" FontWeight="SemiBold" FontSize="13"/>
+              <TextBlock Style="{StaticResource Mono}" Foreground="{StaticResource Muted}" Text="{Binding Pid, StringFormat=pid {0}}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+              <StackPanel Margin="0,0,8,0">
+                <TextBlock Text="PORT" Foreground="{StaticResource Dim}" FontSize="9" HorizontalAlignment="Right"/>
+                <TextBlock Text="{Binding Port}" FontFamily="Consolas" FontSize="24" FontWeight="Bold" Foreground="{StaticResource Text}" HorizontalAlignment="Right"/>
+              </StackPanel>
+              <Button x:Name="CopyBtn" Style="{StaticResource Btn}" Padding="6" ToolTip="Copy port" Click="CopyPort_Click">
+                <ContentControl Foreground="{StaticResource Text}"><Path Style="{StaticResource Ico}" Data="{StaticResource icon.copy}"/></ContentControl>
+              </Button>
+            </StackPanel>
+          </Grid>
+          <DockPanel Margin="0,8,0,0">
+            <Border Style="{StaticResource Chip}" BorderBrush="{Binding Listening, Converter={StaticResource OkBrush}}" Background="{StaticResource Well}">
+              <StackPanel Orientation="Horizontal">
+                <Ellipse Width="6" Height="6" Fill="{Binding Listening, Converter={StaticResource OkBrush}}" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding Listener}" FontSize="10" Foreground="{Binding Listening, Converter={StaticResource OkBrush}}"/>
+              </StackPanel>
+            </Border>
+            <TextBlock Style="{StaticResource Mono}" Text="127.0.0.1" Foreground="{StaticResource Muted}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+            <TextBlock Text="{Binding Copied}" Foreground="{StaticResource Green}" FontSize="10" DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+          </DockPanel>
+          <Border Background="{StaticResource Well}" BorderBrush="{StaticResource Line}" BorderThickness="1" Padding="6,4" Margin="0,8,0,0">
+            <DockPanel>
+              <ContentControl Foreground="{StaticResource Muted}"><Path Style="{StaticResource Ico}" Data="{StaticResource icon.drawing}"/></ContentControl>
+              <TextBlock Text="{Binding Drawing}" Margin="6,0,0,0" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+            </DockPanel>
+          </Border>
+        </StackPanel>
+      </Border>
+
+      <!-- PAYLOAD -->
+      <Border Style="{StaticResource SectionHeader}">
+        <DockPanel>
+          <ContentControl Foreground="{StaticResource Muted}"><Path Style="{StaticResource Ico}" Data="{StaticResource icon.payload}"/></ContentControl>
+          <TextBlock Style="{StaticResource H}" Text="PAYLOAD" Margin="6,0,0,0"/>
+        </DockPanel>
+      </Border>
+      <Border Background="{StaticResource Panel}" Padding="8,8">
+        <StackPanel>
+          <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <StackPanel>
+              <TextBlock Style="{StaticResource Mono}" Text="{Binding Payload}"/>
+              <TextBlock Text="{Binding PayloadWhen}" Foreground="{StaticResource Muted}" FontSize="11"/>
+            </StackPanel>
+            <Button Grid.Column="1" Style="{StaticResource Btn}" IsEnabled="{Binding CanReloadLast}" Click="ReloadLast_Click" VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal">
+                <ContentControl Foreground="{StaticResource Text}"><Path Style="{StaticResource Ico}" Data="{StaticResource icon.reload}"/></ContentControl>
+                <TextBlock Text="Reload last" Margin="6,0,0,0"/>
+              </StackPanel>
+            </Button>
+          </Grid>
+          <TextBlock Text="{Binding ReloadError}" Foreground="{StaticResource Dim}" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap"/>
+        </StackPanel>
+      </Border>
+
+      <!-- RUNS -->
+      <Border Style="{StaticResource SectionHeader}">
+        <DockPanel>
+          <ContentControl Foreground="{StaticResource Muted}"><Path Style="{StaticResource Ico}" Data="{StaticResource icon.runs}"/></ContentControl>
+          <TextBlock Style="{StaticResource H}" Text="RUNS" Margin="6,0,0,0"/>
+          <TextBlock Style="{StaticResource HRight}" Text="{Binding RunsCount}" DockPanel.Dock="Right" HorizontalAlignment="Right"/>
+        </DockPanel>
+      </Border>
+      <ListBox ItemsSource="{Binding Runs}" SelectedItem="{Binding Selected, Mode=TwoWay}" Background="{StaticResource Panel}" BorderThickness="0" MaxHeight="220" Padding="0"
+               ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
+        <ListBox.ItemContainerStyle>
+          <Style TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="0"/>
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                  <Border x:Name="Row" Background="Transparent" BorderBrush="{StaticResource Line}" BorderThickness="3,0,0,1" Padding="6,5">
+                    <ContentPresenter/>
+                  </Border>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                      <Setter TargetName="Row" Property="Background" Value="{StaticResource Select}"/>
+                      <Setter TargetName="Row" Property="BorderBrush" Value="{StaticResource Active}"/>
+                    </Trigger>
+                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Row" Property="Background" Value="{StaticResource Raised}"/></Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
+          </Style>
+        </ListBox.ItemContainerStyle>
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <Grid>
+              <Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+              <TextBlock Style="{StaticResource Mono}" Foreground="{StaticResource Muted}" Text="{Binding RunId}" VerticalAlignment="Center"/>
+              <StackPanel Grid.Column="1">
+                <TextBlock Style="{StaticResource Mono}" Text="{Binding Command}" FontWeight="Bold"/>
+                <TextBlock Text="{Binding ByLine}" Foreground="{StaticResource Muted}" FontSize="10"/>
+              </StackPanel>
+              <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                <Border Style="{StaticResource Chip}" HorizontalAlignment="Right" BorderBrush="{Binding State, Converter={StaticResource StateBrush}}" Background="{Binding State, Converter={StaticResource StateBg}}">
+                  <TextBlock Text="{Binding State, Converter={StaticResource Upper}}" FontSize="10" Foreground="{Binding State, Converter={StaticResource StateBrush}}"/>
+                </Border>
+                <TextBlock Style="{StaticResource Mono}" Foreground="{StaticResource Dim}" FontSize="10" Text="{Binding Duration}" HorizontalAlignment="Right"/>
+              </StackPanel>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <!-- LIVE LOG -->
+      <Border Style="{StaticResource SectionHeader}">
+        <DockPanel>
+          <ContentControl Foreground="{StaticResource Muted}"><Path Style="{StaticResource Ico}" Data="{StaticResource icon.log}"/></ContentControl>
+          <TextBlock Style="{StaticResource H}" Text="LIVE LOG" Margin="6,0,0,0"/>
+          <TextBlock Style="{StaticResource HRight}" Text="{Binding LogTitle}" DockPanel.Dock="Right" HorizontalAlignment="Right"/>
+        </DockPanel>
+      </Border>
+      <Border Background="{StaticResource Panel}" Padding="8,6">
+        <StackPanel>
+          <WrapPanel x:Name="SrcChips">
+            <ToggleButton Tag="log" IsChecked="True" Content="log" Click="SrcChip_Click" Style="{DynamicResource ChipToggle}"/>
+            <ToggleButton Tag="diag" IsChecked="True" Content="diag" Click="SrcChip_Click" Style="{DynamicResource ChipToggle}"/>
+            <ToggleButton Tag="note" IsChecked="True" Content="note" Click="SrcChip_Click" Style="{DynamicResource ChipToggle}"/>
+            <ToggleButton Tag="feedback" IsChecked="True" Content="feedback" Click="SrcChip_Click" Style="{DynamicResource ChipToggle}"/>
+            <ToggleButton Tag="host" IsChecked="True" Content="host" Click="SrcChip_Click" Style="{DynamicResource ChipToggle}"/>
+            <TextBox Width="110" Margin="6,0,0,0" Text="{Binding Filter, UpdateSourceTrigger=PropertyChanged, Delay=250}" ToolTip="text filter"/>
+          </WrapPanel>
+          <DockPanel Margin="0,6,0,0">
+            <CheckBox Content="diag failed only" IsChecked="{Binding FailedOnly}"/>
+            <CheckBox Content="auto-scroll" IsChecked="{Binding AutoScroll}" Margin="12,0,0,0"/>
+            <TextBlock Style="{StaticResource Mono}" Foreground="{StaticResource Dim}" FontSize="10" Text="{Binding Counts}" DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+          </DockPanel>
+        </StackPanel>
+      </Border>
+      <ListBox x:Name="LogList" ItemsSource="{Binding Log}" Background="{StaticResource Well}" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,1" Height="240" Padding="0"
+               VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.HorizontalScrollBarVisibility="Auto" HorizontalContentAlignment="Stretch" FontFamily="Consolas" FontSize="11">
+        <ListBox.ItemContainerStyle>
+          <Style TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="6,1"/><Setter Property="Foreground" Value="{StaticResource Text}"/>
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                  <Border x:Name="Row" Background="Transparent" Padding="{TemplateBinding Padding}"><ContentPresenter/></Border>
+                  <ControlTemplate.Triggers>
+                    <DataTrigger Binding="{Binding FailedDiag}" Value="True"><Setter TargetName="Row" Property="Background" Value="{StaticResource RedBg}"/></DataTrigger>
+                    <Trigger Property="IsSelected" Value="True"><Setter TargetName="Row" Property="Background" Value="{StaticResource Select}"/></Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
+          </Style>
+        </ListBox.ItemContainerStyle>
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="{Binding Time}" Foreground="{StaticResource Dim}" Width="82"/>
+              <TextBlock Text="{Binding Src, StringFormat=[{0}]}" Foreground="{Binding Src, Converter={StaticResource SrcBrush}}" Width="70"/>
+              <TextBlock Text="{Binding Text}" Foreground="{StaticResource Text}"/>
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <!-- ACTIONS -->
+      <Border Style="{StaticResource SectionHeader}">
+        <DockPanel>
+          <ContentControl Foreground="{StaticResource Muted}"><Path Style="{StaticResource Ico}" Data="{StaticResource icon.mark-finished}"/></ContentControl>
+          <TextBlock Style="{StaticResource H}" Text="ACTIONS" Margin="6,0,0,0"/>
+          <TextBlock Style="{StaticResource HRight}" Text="{Binding ActionsTitle}" DockPanel.Dock="Right" HorizontalAlignment="Right"/>
+        </DockPanel>
+      </Border>
+      <Border Background="{StaticResource Panel}" Padding="8,8">
+        <StackPanel>
+          <Grid x:Name="FinishRow">
+            <Button Style="{StaticResource Primary}" IsEnabled="{Binding CanFinish}" Click="Finish_Click" Padding="8,7">
+              <StackPanel Orientation="Horizontal">
+                <ContentControl Foreground="{StaticResource Text}"><Path Style="{StaticResource Ico}" Data="{StaticResource icon.mark-finished}"/></ContentControl>
+                <TextBlock Text="Mark run finished" Margin="6,0,0,0"/>
+              </StackPanel>
+            </Button>
+          </Grid>
+          <Grid x:Name="FinishChoice" Visibility="Collapsed" Margin="0,4,0,0">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <Button Style="{StaticResource Btn}" Content="finished: Completed" Tag="completed" Click="FinishAs_Click" Margin="0,0,4,0"/>
+            <Button Grid.Column="1" Style="{StaticResource Danger}" Content="finished: Failed" Tag="failed" Click="FinishAs_Click" Margin="0,0,4,0"/>
+            <Button Grid.Column="2" Style="{StaticResource Btn}" Content="x" Click="FinishCancel_Click"/>
+          </Grid>
+          <Grid Margin="0,6,0,0">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <Button Style="{StaticResource Btn}" Click="IdlePing_Click">
+              <StackPanel Orientation="Horizontal"><ContentControl Foreground="{StaticResource Text}"><Path Style="{StaticResource Ico}" Data="{StaticResource icon.idle-ping}"/></ContentControl><TextBlock Text="Idle ping now" Margin="6,0,0,0"/></StackPanel>
+            </Button>
+            <Button Grid.Column="2" Style="{StaticResource Btn}" IsEnabled="{Binding CanReset}" Click="Baseline_Click">
+              <StackPanel Orientation="Horizontal"><ContentControl Foreground="{StaticResource Text}"><Path Style="{StaticResource Ico}" Data="{StaticResource icon.baseline}"/></ContentControl><TextBlock Text="Baseline" Margin="6,0,0,0"/></StackPanel>
+            </Button>
+          </Grid>
+          <Grid Margin="0,6,0,0">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <Button Style="{StaticResource Btn}" IsEnabled="{Binding CanReset}" Tag="soft" Click="Reset_Click">
+              <StackPanel Orientation="Horizontal"><ContentControl Foreground="{StaticResource Text}"><Path Style="{StaticResource Ico}" Data="{StaticResource icon.reset}"/></ContentControl><TextBlock Text="Reset (soft)" Margin="6,0,0,0"/></StackPanel>
+            </Button>
+            <Button Grid.Column="2" Style="{StaticResource Btn}" IsEnabled="{Binding CanReset}" Tag="hard" Click="Reset_Click" Content="Reset (hard)"/>
+          </Grid>
+          <Border Background="{StaticResource Well}" BorderBrush="{StaticResource Line}" BorderThickness="1" Padding="6,4" Margin="0,8,0,0">
+            <DockPanel>
+              <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                <Rectangle Width="8" Height="8" Margin="2,0" Fill="{Binding IdleStreak, Converter={StaticResource Streak}, ConverterParameter=1}"/>
+                <Rectangle Width="8" Height="8" Margin="2,0" Fill="{Binding IdleStreak, Converter={StaticResource Streak}, ConverterParameter=2}"/>
+                <Rectangle Width="8" Height="8" Margin="2,0" Fill="{Binding IdleStreak, Converter={StaticResource Streak}, ConverterParameter=3}"/>
+              </StackPanel>
+              <TextBlock Style="{StaticResource Mono}" Text="{Binding IdleText}" Foreground="{StaticResource Muted}"/>
+            </DockPanel>
+          </Border>
+        </StackPanel>
+      </Border>
+
+      <!-- ESCALATION -->
+      <StackPanel Visibility="{Binding HasEscalation, Converter={StaticResource Vis}}">
+        <Border Style="{StaticResource SectionHeader}" Background="{StaticResource AmberBg}" BorderBrush="{StaticResource Amber}">
+          <DockPanel>
+            <ContentControl Foreground="{StaticResource Amber}"><Path Style="{StaticResource Ico}" Data="{StaticResource icon.escalation}"/></ContentControl>
+            <TextBlock Style="{StaticResource H}" Text="ESCALATION" Margin="6,0,0,0" Foreground="{StaticResource Amber}"/>
+            <TextBlock Style="{StaticResource HRight}" Text="{Binding Escalation.Id}" DockPanel.Dock="Right" HorizontalAlignment="Right"/>
+          </DockPanel>
+        </Border>
+        <Border Background="{StaticResource Panel}" Padding="8,8" BorderBrush="{StaticResource Amber}" BorderThickness="3,0,0,0">
+          <StackPanel>
+            <TextBlock Text="{Binding Escalation.Title}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+            <Grid Margin="0,8,0,0">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+              <Border Background="{StaticResource Well}" BorderBrush="{StaticResource Line}" BorderThickness="1" Padding="6">
+                <StackPanel>
+                  <TextBlock Text="ROUND 1" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource Muted}"/>
+                  <TextBlock Text="{Binding Escalation.Round1Reason}" TextWrapping="Wrap" FontSize="11" Margin="0,4,0,4"/>
+                  <TextBlock Style="{StaticResource Mono}" Text="{Binding Escalation.Round1Checks}" Foreground="{StaticResource Red}" TextWrapping="Wrap" FontSize="10"/>
+                </StackPanel>
+              </Border>
+              <Border Grid.Column="2" Background="{StaticResource Well}" BorderBrush="{StaticResource Line}" BorderThickness="1" Padding="6">
+                <StackPanel>
+                  <TextBlock Text="ROUND 2" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource Muted}"/>
+                  <TextBlock Text="{Binding Escalation.Round2Reason}" TextWrapping="Wrap" FontSize="11" Margin="0,4,0,4"/>
+                  <TextBlock Style="{StaticResource Mono}" Text="{Binding Escalation.Round2Checks}" Foreground="{StaticResource Red}" TextWrapping="Wrap" FontSize="10"/>
+                </StackPanel>
+              </Border>
+            </Grid>
+            <TextBlock Text="Answer the agent's question in Claude Code; the choice is recorded by c3d_escalation_resolve." Foreground="{StaticResource Dim}" FontSize="10" Margin="0,8,0,0" TextWrapping="Wrap"/>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+
+      <!-- FOOTER -->
+      <Border Background="{StaticResource Well}" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="8,6">
+        <StackPanel>
+          <TextBlock Text="{Binding HostLog}" FontFamily="Consolas" FontSize="9.5" Foreground="{StaticResource Dim}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+          <DockPanel Margin="0,6,0,0">
+            <ContentControl Foreground="{StaticResource Dim}"><Path Style="{StaticResource Ico}" Data="{StaticResource icon.folder}"/></ContentControl>
+            <TextBlock Style="{StaticResource HRight}" Text="{Binding HostVersion}" DockPanel.Dock="Right" HorizontalAlignment="Right"/>
+            <TextBlock Text="{Binding DataFolder}" Foreground="{StaticResource Dim}" FontSize="9.5" Margin="6,0,6,0" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonUp="OpenFolder_Click"/>
+          </DockPanel>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>
