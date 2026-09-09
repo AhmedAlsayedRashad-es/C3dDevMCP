@@ -18,6 +18,7 @@ namespace C3dMCP.Host.Palette
             {
                 Style = PaletteSetStyles.ShowPropertiesMenu | PaletteSetStyles.ShowAutoHideButton | PaletteSetStyles.ShowCloseButton,
                 MinimumSize = new System.Drawing.Size(340, 300),
+                Size = new System.Drawing.Size(420, 900),
                 KeepFocus = false,
             };
             _set.AddVisual("C3dMCP", _view);
@@ -26,5 +27,18 @@ namespace C3dMCP.Host.Palette
         public void Show() { _set.Visible = true; Refresh(); }
 
         public void Refresh() { try { _view.Dispatcher.BeginInvoke(new Action(_view.Refresh)); } catch { } }
+
+        public void SetEscalation(Routes.EscalationBody b)
+        {
+            try
+            {
+                _view.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    _view.Model.Escalation = b == null ? null : new EscalationCard { Id = b.Id, Title = b.Title, Round1Reason = b.Round1Reason, Round1Checks = b.Round1Checks, Round2Reason = b.Round2Reason, Round2Checks = b.Round2Checks };
+                    if (b != null) _set.Visible = true;
+                }));
+            }
+            catch { }
+        }
     }
 }

@@ -1,0 +1,69 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "c3dmcp hook pre-agent",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "SendMessage",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "c3dmcp hook pre-message",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__c3dmcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "c3dmcp hook pre-tool",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "c3dmcp hook subagent-stop",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "c3dmcp hook stop",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "mcp__c3dmcp__*",
+      "Bash(dotnet build:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git status:*)"
+    ]
+  }
+}

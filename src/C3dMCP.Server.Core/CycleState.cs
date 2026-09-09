@@ -51,6 +51,29 @@ public sealed class Cycle
 
 public static class CycleState
 {
+    /// <summary>Best effort: show or clear the escalation card in the palette of the instance
+    /// that matches the project's Civil3D version (when exactly one is running).</summary>
+    public static void PushEscalation(ProjectContext ctx, Cycle c)
+    {
+        try
+        {
+            var inst = InstanceDiscovery.List(probe: false).Where(i => string.Equals(i.Version, ctx.Version)).ToList();
+            if (inst.Count != 1) return;
+            using var client = new HostClient(inst[0]);
+            var e = c.EscalationOpen;
+            if (e == null) { client.Escalation(null); return; }
+            var r1 = e.Rounds.Count > 0 ? e.Rounds[^Math.Min(2, e.Rounds.Count)] : null;
+            var r2 = e.Rounds.Count > 1 ? e.Rounds[^1] : null;
+            client.Escalation(new
+            {
+                id = e.Id, title = "Escalation " + e.Id + ": " + e.Why,
+                round1Reason = r1?.Reason ?? "", round1Checks = r1 == null ? "" : string.Join(", ", r1.FailedChecks),
+                round2Reason = r2?.Reason ?? "", round2Checks = r2 == null ? "" : string.Join(", ", r2.FailedChecks),
+            });
+        }
+        catch { }
+    }
+
     private static readonly JsonSerializerOptions Json = new() { PropertyNameCaseInsensitive = true, WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
 
     public static Cycle Load(ProjectContext ctx)
@@ -237,6 +260,7 @@ public static class CycleState
                 throw new ToolError("bad-event", "unknown event kind '" + e.Kind + "'");
         }
         Save(ctx, c);
+        if (c.State == "escalated" || e.Kind == "reset") PushEscalation(ctx, c);
         return c;
     }
 
@@ -275,6 +299,7 @@ public static class CycleState
         Note(c, "escalation " + escalationId + " resolved: " + decision + (answer != null ? " — " + answer : ""));
         c.EscalationOpen = null; c.Redispatch = 0;
         Save(ctx, c);
+        PushEscalation(ctx, c);
         return c;
     }
 }

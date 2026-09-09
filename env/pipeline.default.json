@@ -1,0 +1,41 @@
+{
+  "schema": "c3dmcp.pipeline/1",
+  "bank": {
+    "diagnostician": { "agent": "c3d-diagnostician",  "model": "opus",   "effort": "high" },
+    "planner":       { "agent": "c3d-planner",        "model": "opus",   "effort": "high" },
+    "planner-x":     { "agent": "c3d-planner-xhigh",  "model": "fable",  "effort": "xhigh" },
+    "planner-max":   { "agent": "c3d-planner-max",    "model": "fable",  "effort": "max" },
+    "implementer":   { "agent": "c3d-implementer",    "model": "sonnet", "effort": "medium" },
+    "analyzer":      { "agent": "c3d-analyzer",       "model": "opus",   "effort": "high" },
+    "plan-critic":   { "agent": "c3d-plan-critic",    "model": "fable",  "effort": "xhigh" },
+    "change-critic": { "agent": "c3d-change-critic",  "model": "fable",  "effort": "high" }
+  },
+  "rungs": [
+    { "rung": 1, "steps": [
+      { "use": "diagnostician", "optional": true,  "active": false },
+      { "use": "planner",       "optional": false, "active": true },
+      { "use": "implementer",   "optional": false, "active": true },
+      { "use": "analyzer",      "optional": false, "active": true } ] },
+    { "rung": 2, "steps": [
+      { "use": "diagnostician", "optional": false, "active": true },
+      { "use": "planner-x",     "optional": false, "active": true },
+      { "use": "plan-critic",   "optional": true,  "active": false },
+      { "use": "implementer",   "optional": false, "active": true },
+      { "use": "analyzer",      "optional": false, "active": true } ] },
+    { "rung": 3, "askHuman": true, "steps": [
+      { "use": "diagnostician", "optional": false, "active": true },
+      { "use": "planner-x",     "optional": false, "active": true },
+      { "use": "plan-critic",   "optional": false, "active": true },
+      { "use": "implementer",   "optional": false, "active": true },
+      { "use": "analyzer",      "optional": false, "active": true },
+      { "use": "change-critic", "optional": true,  "active": true } ] },
+    { "rung": 4, "askHuman": true, "steps": [
+      { "use": "diagnostician", "optional": false, "active": true },
+      { "use": "planner-max",   "optional": false, "active": true },
+      { "use": "plan-critic",   "optional": false, "active": true },
+      { "use": "implementer",   "optional": false, "active": true },
+      { "use": "analyzer",      "optional": false, "active": true },
+      { "use": "change-critic", "optional": false, "active": true } ] }
+  ],
+  "ladder": { "startRung": 1, "climbAfterFails": 1, "escalateAfterFails": 2, "resetOnPass": true, "redispatchCeiling": 2 }
+}

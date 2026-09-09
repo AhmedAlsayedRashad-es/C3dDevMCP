@@ -19,12 +19,16 @@ switch (verb)
         return HookCli.Run(args.Skip(1).ToArray());
     case "doctor":
         return Doctor.Run();
+    case "install":
+        return Install.Run(args.Skip(1).ToArray());
+    case "env":
+        return Install.EnvVerb(args.Skip(1).ToArray());
     case "version":
     case "--version":
         Console.WriteLine("c3dmcp " + typeof(Program).Assembly.GetName().Version?.ToString(3));
         return 0;
     default:
-        Console.Error.WriteLine("unknown verb '" + verb + "'; use: serve | hook <event> | doctor | version");
+        Console.Error.WriteLine("unknown verb '" + verb + "'; use: serve | hook <event> | install | env sync | doctor | version");
         return 2;
 }
 
@@ -43,7 +47,8 @@ static async Task<int> Serve()
         .WithTools<TaskTools>()
         .WithTools<RunTools>()
         .WithTools<ProjectTools>()
-        .WithTools<CycleTools>();
+        .WithTools<CycleTools>()
+        .WithTools<EnvTools>();
     await builder.Build().RunAsync();
     return 0;
 }

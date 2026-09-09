@@ -32,6 +32,14 @@ public sealed class HostClient : IDisposable
     public JsonNode Baseline() => Post("v1/baseline", new { });
     public JsonNode Reset(bool hard) => Post("v1/reset", new { hard }, 6 * 60 * 1000);
     public JsonNode HostLog(int tail) => Get("v1/log?tail=" + tail);
+    public JsonNode Escalation(object? card) => card == null ? Delete("v1/escalation") : Post("v1/escalation", card);
+
+    private JsonNode Delete(string path, int timeoutMs = 10000)
+    {
+        using var cts = new CancellationTokenSource(timeoutMs);
+        using var res = _http.DeleteAsync(path, cts.Token).GetAwaiter().GetResult();
+        return Parse(res);
+    }
 
     private JsonNode Get(string path, int timeoutMs = 30000)
     {

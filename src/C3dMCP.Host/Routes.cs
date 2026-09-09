@@ -11,6 +11,7 @@ namespace C3dMCP.Host
         private sealed class ReloadBody { public string Dll { get; set; } public string AddinName { get; set; } }
         private sealed class CompleteBody { public string Status { get; set; } public string By { get; set; } public string Reason { get; set; } }
         private sealed class ResetBody { public bool Hard { get; set; } }
+        public sealed class EscalationBody { public string Id { get; set; } public string Title { get; set; } public string Round1Reason { get; set; } public string Round1Checks { get; set; } public string Round2Reason { get; set; } public string Round2Checks { get; set; } }
 
         internal static void Register(HostApp app)
         {
@@ -121,6 +122,21 @@ namespace C3dMCP.Host
                 if (rec.Pinger == null) throw new HttpError(409, "no-pinger", "idle pinger not running");
                 rec.Pinger.ProbeNow();
                 return new { ok = true, idlePing = rec.Pinger.Summary() };
+            });
+
+            api.Map("POST", "/v1/escalation", r =>
+            {
+                var b = r.Json<EscalationBody>();
+                app.PaletteHost?.SetEscalation(b);
+                HostLog.Write(b == null ? "escalation cleared" : "escalation " + b.Id + ": " + b.Title);
+                return new { ok = true, escalation = b?.Id };
+            });
+
+            api.Map("DELETE", "/v1/escalation", _ =>
+            {
+                app.PaletteHost?.SetEscalation(null);
+                HostLog.Write("escalation cleared");
+                return new { ok = true };
             });
 
             api.Map("POST", "/v1/baseline", _ =>

@@ -5,3 +5,8 @@ obj/
 *.swp
 TestResults/
 artifacts/
+templates/Payload/.claude/
+templates/Payload/.mcp.json
+templates/Payload/.c3d/
+templates/Payload/BACKLOG.md
+templates/Payload/payload.rev

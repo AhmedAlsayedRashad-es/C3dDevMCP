@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "c3dmcp": {
+      "type": "stdio",
+      "command": "${LOCALAPPDATA}\\First Option\\C3dMCP\\bin\\c3dmcp.exe",
+      "args": [
+        "serve"
+      ]
+    }
+  }
+}

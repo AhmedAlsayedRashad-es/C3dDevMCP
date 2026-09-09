@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>C3dMCP.Setup</AssemblyName>
+    <RootNamespace>C3dMCP.Setup</RootNamespace>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <Description>Portable installer for C3dMCP: unpacks the release beside it into %LOCALAPPDATA% and the Civil3D bundle folder. Also the release packager (pack verb).</Description>
+  </PropertyGroup>
+</Project>
