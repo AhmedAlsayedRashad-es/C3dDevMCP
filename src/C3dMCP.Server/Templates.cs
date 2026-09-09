@@ -1,0 +1,39 @@
+namespace C3dMCP.Server;
+
+/// <summary>Files c3d_project_init writes into a payload project.</summary>
+internal static class Templates
+{
+    public const string DirectoryBuildProps = """
+<Project>
+  <!-- Versioned-identity build: every build stamps AssemblyName {RootNamespace}_r{N} while the
+       file on disk stays {RootNamespace}.dll, so many generations coexist in one acad process.
+       payload.rev holds N; it is read at evaluation time and bumped after each build. -->
+  <PropertyGroup>
+    <PayloadRevFile>$(MSBuildThisFileDirectory)payload.rev</PayloadRevFile>
+    <PayloadRevRaw>1</PayloadRevRaw>
+    <PayloadRevRaw Condition="Exists('$(PayloadRevFile)')">$([System.IO.File]::ReadAllText($(PayloadRevFile)))</PayloadRevRaw>
+    <PayloadRev>$(PayloadRevRaw.Trim())</PayloadRev>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+
+  <Target Name="StampVersionedPayload" AfterTargets="Build" Condition="'$(RootNamespace)' != '' and '$(Civil3dVersion)' != ''">
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(TargetDir)$(RootNamespace).dll" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
+    <PropertyGroup>
+      <PayloadDeployDir>$(LocalAppData)\First Option\C3dMCP\payloads\$(RootNamespace)\$(Civil3dVersion)\$(PayloadRev)</PayloadDeployDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(PayloadDeployDir)" />
+    <ItemGroup>
+      <PayloadDeployDlls Include="$(TargetDir)*.dll" Exclude="$(TargetDir)$(AssemblyName).dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(PayloadDeployDlls)" DestinationFolder="$(PayloadDeployDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
+    <WriteLinesToFile File="$(PayloadRevFile)" Lines="$([MSBuild]::Add($(PayloadRev), 1))" Overwrite="true" />
+    <!-- One line the server parses: the deployed path of THIS build. -->
+    <Message Importance="high" Text="C3DMCP_PAYLOAD r$(PayloadRev) $(PayloadDeployDir)\$(RootNamespace).dll" />
+  </Target>
+</Project>
+""";
+
+    public static string PipelineJson => C3dMCP.Server.Core.PipelineConfig.DefaultJson;
+}
