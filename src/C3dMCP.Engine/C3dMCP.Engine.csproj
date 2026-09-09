@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>C3dMCP.Engine</RootNamespace>
+    <AssemblyName>C3dMCP.Engine</AssemblyName>
+    <Description>Pure, testable logic for C3dMCP: hot-reload lifecycle, run state machine, idle-ping judge, port plan, JSONL run log. Bridge assembly; no System.Text.Json.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\C3dMCP.Sdk\C3dMCP.Sdk.csproj" />
+  </ItemGroup>
+</Project>

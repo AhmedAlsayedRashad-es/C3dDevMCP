@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>C3dMCP.Sdk</RootNamespace>
+    <AssemblyName>C3dMCP.Sdk</AssemblyName>
+    <Description>Payload contract for C3dMCP: IC3dCommand, IRunContext, IC3dPatchService. Bridge assembly, one copy per Civil3D process.</Description>
+  </PropertyGroup>
+</Project>
