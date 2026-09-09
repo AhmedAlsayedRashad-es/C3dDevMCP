@@ -11,3 +11,13 @@ development cycle for Civil3D add-in work with Claude Code.
 - `env/` — the Claude Code environment (agents, skills, hooks, templates) that `c3d_env_sync` installs.
 
 Data lives under `%LOCALAPPDATA%\First Option\C3dMCP\`.
+
+## Status 2026-09-09
+
+Phases 0–6 built and verified live on Civil3D 2024 (host, palette, HTTP runs, idle ping, MCP server,
+hooks, env sync, installer, release zip in `artifacts/`). Phase 7 acceptance (IMPORTIRRG on Bridgetown)
+reproduced the old project's "placement queue never drains after P29" freeze on two fresh processes; the
+harness reported it correctly (draining, idle-ping timeouts, unlock). Open harness items:
+1. installer: add the bundle folder to Civil3D TRUSTEDPATHS (the unsigned-DLL dialog blocks every start);
+2. idle pinger: add a COM `SendCommand` probe and report `queued-input-dead` instead of `mainthreadbusy`;
+3. the MCP-hosted `c3d_env_sync` call hung once (CLI path fine); child processes now redirect stdin, unverified.
