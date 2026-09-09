@@ -1,0 +1,671 @@
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>C3dMCP Palette Mockup</title>
+<style>
+  :root{
+    color-scheme:dark;
+    --bg:#181818;--panel:#2b2b2b;--well:#1e1e1e;--raised:#333;
+    --line:#3c3c3c;--line2:#4b4b4b;--text:#e6e6e6;--muted:#9a9a9a;
+    --dim:#747474;--active:#36c2b4;--active-bg:#173b38;
+    --green:#63bd73;--green-bg:#203828;--red:#e16c69;--red-bg:#472625;
+    --amber:#d8a347;--amber-bg:#46371d;--select:#324a51;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:#101010;color:var(--text)}
+  body{font:12px/1.35 "Segoe UI",Arial,sans-serif}
+  button,input{font:inherit}
+  button{color:var(--text)}
+  .stage{
+    display:flex;align-items:flex-start;gap:28px;padding:24px;
+    min-height:100vh;background:
+      linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px),
+      linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px),#171717;
+    background-size:20px 20px
+  }
+  .variant-wrap{position:sticky;top:24px}
+  .variant-label{
+    padding:0 0 7px;color:#aaa;font-size:11px;letter-spacing:.08em;text-transform:uppercase
+  }
+  .palette{
+    width:400px;border:1px solid #4b4b4b;background:var(--panel);
+    box-shadow:0 6px 24px #0009
+  }
+  .palette.narrow{width:320px}
+  .titlebar{
+    height:34px;display:flex;align-items:center;padding:0 8px;
+    border-bottom:1px solid #4b4b4b;background:#303030
+  }
+  .appmark{width:18px;height:18px;color:var(--active);margin-right:7px}
+  .title{font-size:13px;font-weight:600;letter-spacing:.02em}
+  .title-sub{margin-left:7px;color:var(--muted);font-size:11px}
+  .title-spacer{flex:1}
+  .icon-btn{
+    width:25px;height:24px;display:grid;place-items:center;padding:0;
+    color:#bbb;background:transparent;border:1px solid transparent
+  }
+  .icon-btn:hover{background:#414141;border-color:#555;color:#fff}
+  .icon{width:16px;height:16px;display:inline-block;vertical-align:-3px}
+  .section{border-bottom:1px solid var(--line)}
+  .section-head{
+    height:29px;display:flex;align-items:center;gap:7px;padding:0 8px;
+    background:#292929;border-bottom:1px solid #363636;
+    color:#d2d2d2;font-size:11px;font-weight:600;letter-spacing:.065em;text-transform:uppercase
+  }
+  .section-head .count{margin-left:auto;color:var(--muted);font-weight:400;letter-spacing:0}
+  .section-body{padding:8px}
+  .mono{font-family:Consolas,"Courier New",monospace}
+  .muted{color:var(--muted)}
+  .ellipsis{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .kv{display:grid;grid-template-columns:68px minmax(0,1fr);gap:5px 8px;align-items:center}
+  .kv .key{color:var(--muted)}
+  .instance-top{display:flex;align-items:flex-start;gap:9px;margin-bottom:9px}
+  .product{min-width:90px;padding-top:2px}
+  .product strong{display:block;font-size:13px;font-weight:600}
+  .product small{display:block;color:var(--muted)}
+  .port-block{
+    flex:1;display:flex;align-items:center;justify-content:flex-end;gap:5px;
+    padding:3px 5px 3px 8px;border-left:1px solid var(--line)
+  }
+  .port-meta{color:var(--muted);font-size:9px;letter-spacing:.1em;text-transform:uppercase}
+  .port-number{font:600 25px/1 Consolas,monospace;color:#fff;letter-spacing:.02em}
+  .copy-btn{width:27px;height:27px;border:1px solid #555;background:#383838;padding:4px}
+  .copy-btn:hover{background:#474747;border-color:#6b6b6b}
+  .status-line{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+  .chip{
+    display:inline-flex;align-items:center;gap:4px;height:19px;padding:0 6px;
+    border:1px solid #555;background:#333;font-size:10px;white-space:nowrap;text-transform:uppercase
+  }
+  .chip.ok{color:#9cdaa7;border-color:#3f7550;background:var(--green-bg)}
+  .chip.live{color:#85ded5;border-color:#327d75;background:var(--active-bg)}
+  .chip.fail{color:#f0a09e;border-color:#864946;background:var(--red-bg)}
+  .chip.warn{color:#ecc574;border-color:#806431;background:var(--amber-bg)}
+  .chip.neutral{color:#b5b5b5}
+  .state-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+  .thread{margin-left:auto;display:flex;align-items:center;gap:5px;color:#a6dbae;font-size:11px}
+  .thread.busy{color:#e7bb61}
+  .drawing-row{
+    display:grid;grid-template-columns:16px minmax(0,1fr) auto;gap:6px;align-items:center;
+    padding:5px 6px;background:var(--well);border:1px solid #353535
+  }
+  .payload-grid{
+    display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 8px;align-items:center
+  }
+  .payload-id{font:11px Consolas,monospace;color:#d7d7d7}
+  .button{
+    min-height:26px;padding:3px 8px;border:1px solid #555;background:#393939;
+    white-space:nowrap;text-align:center
+  }
+  .button:hover{background:#484848;border-color:#696969}
+  .button.primary{background:#236b65;border-color:#3b9d93;color:#fff}
+  .button.primary:hover{background:#2b7e77}
+  .button.danger{border-color:#7b4543;color:#f1aaa7;background:#482927}
+  .button:disabled{color:#777;border-color:#444;background:#303030}
+  .button .icon{margin-right:4px}
+  .error-collapsed{
+    margin-top:7px;padding-top:6px;border-top:1px solid #383838;color:#858585;font-size:11px
+  }
+  .run-list{background:var(--well)}
+  .run-row{
+    display:grid;grid-template-columns:37px minmax(0,1fr) auto;column-gap:7px;
+    align-items:center;min-height:38px;padding:4px 7px;border-bottom:1px solid #333
+  }
+  .run-row:last-child{border-bottom:0}
+  .run-row.selected{background:var(--select);box-shadow:inset 3px 0 var(--active)}
+  .run-row:hover{background:#303b3e}
+  .run-id{font:11px Consolas,monospace;color:#a9a9a9}
+  .run-command{font:600 11px Consolas,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .run-meta{color:#8f8f8f;font-size:10px;margin-top:2px}
+  .run-state{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+  .duration{font:10px Consolas,monospace;color:#929292}
+  .spin{animation:spin 1.1s linear infinite;transform-origin:center}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media(prefers-reduced-motion:reduce){.spin{animation:none}}
+  .filters{
+    display:flex;flex-wrap:wrap;gap:4px;padding:6px;background:#252525;border-bottom:1px solid var(--line)
+  }
+  .filter-chip{
+    height:21px;padding:0 5px;border:1px solid #4b4b4b;background:#303030;
+    color:#aaa;font-size:10px
+  }
+  .filter-chip.on{color:#d9f5f2;border-color:#397d77;background:#23423f}
+  .filter-text{
+    flex:1;min-width:90px;height:21px;padding:1px 6px;border:1px solid #4b4b4b;
+    outline:0;background:#191919;color:#ddd;font:10px Consolas,monospace
+  }
+  .filter-text:focus{border-color:#4c9991}
+  .toggles{width:100%;display:flex;align-items:center;gap:12px;margin-top:2px}
+  .check{display:flex;align-items:center;gap:5px;color:#aaa;font-size:10px}
+  .check input{accent-color:#258b81;width:12px;height:12px;margin:0}
+  .log-list{
+    height:237px;overflow:hidden;background:#171717;
+    font:10.5px/17px Consolas,"Courier New",monospace
+  }
+  .log-line{
+    display:grid;grid-template-columns:79px 51px minmax(0,1fr);
+    min-height:17px;padding:0 6px;border-bottom:1px solid #222
+  }
+  .log-line:hover{background:#242424}
+  .time{color:#707070}
+  .src{font-weight:600}
+  .src.log{color:#b7b7b7}.src.diag{color:#72bbb4}.src.note{color:#c5a665}
+  .src.feedback{color:#a78fd0}.src.host{color:#759fca}
+  .log-msg{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#c4c4c4}
+  .log-line.error{background:#321c1c}
+  .log-line.error .log-msg{color:#ef9996}
+  .log-line.good .log-msg{color:#8acb96}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+  .actions .wide{grid-column:1/-1}
+  .idle-streak{
+    grid-column:1/-1;display:flex;align-items:center;padding:5px 6px;
+    border:1px solid #3b3b3b;background:#222;color:#aaa
+  }
+  .streak-dots{display:flex;gap:4px;margin-left:auto}
+  .streak-dots i{width:7px;height:7px;border:1px solid #64726f;background:#202423}
+  .streak-dots i.on{border-color:#45a79d;background:var(--active)}
+  .split{display:flex}
+  .split .button:first-child{flex:1}
+  .split .menu{width:23px;padding:0;border-left:0}
+  .escalation{background:#29251e;border-left:3px solid var(--amber)}
+  .escalation .section-head{background:#332d22;color:#efd08c}
+  .esc-title{font-size:12px;font-weight:600;margin-bottom:7px;color:#f0d49c}
+  .verdicts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px}
+  .verdict{min-width:0;padding:6px;border:1px solid #584934;background:#211f1b}
+  .verdict-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  .verdict-head strong{font-size:10px;text-transform:uppercase;color:#bbb}
+  .reason{height:30px;overflow:hidden;color:#d1c4aa;font-size:10px}
+  .checks{margin-top:4px;color:#e58e89;font:9.5px Consolas,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .esc-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+  .footer{padding:7px 8px 8px;background:#202020}
+  .tail{padding:5px 6px;background:#161616;border:1px solid #343434;color:#777;font:9px/14px Consolas,monospace}
+  .tail div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .footer-meta{display:flex;gap:6px;align-items:center;margin-top:6px;color:#767676;font-size:9px}
+  .footer-path{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .narrow .section-body{padding:7px}
+  .narrow .instance-top{gap:5px}
+  .narrow .product{min-width:74px}
+  .narrow .port-number{font-size:22px}
+  .narrow .port-block{padding-left:5px}
+  .narrow .run-row{grid-template-columns:34px minmax(0,1fr) auto;padding-left:6px}
+  .narrow .run-meta .by-label{display:none}
+  .narrow .chip{padding:0 4px}
+  .narrow-note{
+    padding:7px 8px;background:#202020;color:#777;font-size:10px;border-top:1px solid #383838
+  }
+  @media(max-width:780px){
+    .stage{flex-direction:column;padding:12px;gap:20px}
+    .variant-wrap{position:static}
+    .palette{width:min(400px,calc(100vw - 24px))}
+    .palette.narrow{width:min(320px,calc(100vw - 24px))}
+  }
+</style>
+</head>
+<body>
+<!-- Inline subset keeps this mockup self-contained; the complete reusable sprite follows separately. -->
+<svg aria-hidden="true" width="0" height="0" style="position:absolute">
+  <symbol id="i-instance" viewBox="0 0 16 16"><rect x="2.5" y="2.5" width="11" height="11"/><path d="M5 5h6v6H5zM1 6h1.5M1 10h1.5M13.5 6H15M13.5 10H15"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="7.5" height="8"/><path d="M10.5 5.5V2.5H3v8h2.5"/></symbol>
+  <symbol id="i-drawing" viewBox="0 0 16 16"><path d="M3 1.75h6l4 4V14.25H3zM9 1.75v4h4M5 10l2-2 1.5 1.5L11 7"/></symbol>
+  <symbol id="i-payload" viewBox="0 0 16 16"><path d="M8 1.5 13 4v8L8 14.5 3 12V4zM3 4l5 2.5L13 4M8 6.5v8"/></symbol>
+  <symbol id="i-reload" viewBox="0 0 16 16"><path d="M13.5 7A5.5 5.5 0 1 0 12 11M13.5 3v4h-4"/></symbol>
+  <symbol id="i-runs" viewBox="0 0 16 16"><path d="M3 2v12M5.5 4H13M5.5 8H13M5.5 12H13"/><circle cx="3" cy="4" r=".8" fill="currentColor" stroke="none"/><circle cx="3" cy="8" r=".8" fill="currentColor" stroke="none"/><circle cx="3" cy="12" r=".8" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-running" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="m6.5 5 4 3-4 3z"/></symbol>
+  <symbol id="i-draining" viewBox="0 0 16 16"><path d="M8 2a6 6 0 0 1 5.7 4M14 8a6 6 0 0 1-4 5.65M8 14a6 6 0 0 1-5.7-4M2 8a6 6 0 0 1 4-5.65"/></symbol>
+  <symbol id="i-completed" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="m5 8 2 2 4-4"/></symbol>
+  <symbol id="i-failed" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="m6 6 4 4M10 6l-4 4"/></symbol>
+  <symbol id="i-log" viewBox="0 0 16 16"><path d="M3 2.5h10v11H3zM5 5h6M5 8h6M5 11h4"/></symbol>
+  <symbol id="i-actions" viewBox="0 0 16 16"><path d="M8 1.5v3M8 11.5v3M1.5 8h3M11.5 8h3M3.4 3.4l2.1 2.1M10.5 10.5l2.1 2.1M12.6 3.4l-2.1 2.1M5.5 10.5l-2.1 2.1"/><circle cx="8" cy="8" r="2"/></symbol>
+  <symbol id="i-escalation" viewBox="0 0 16 16"><path d="M8 2 14 13H2zM8 6v3.5M8 11.5v.2"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 16 16"><path d="M1.5 4h5l1.3 1.5h6.7v7.5h-13zM1.5 4V2.5h4L7 4"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"/></symbol>
+  <symbol id="i-app" viewBox="0 0 16 16"><path d="m8 1.5 5.6 3.25v6.5L8 14.5l-5.6-3.25v-6.5zM5 5.5v3h3.5V11M8.5 8.5 11 6"/></symbol>
+</svg>
+
+<main class="stage">
+  <div>
+    <div class="variant-label">Docked palette - 400 px</div>
+    <aside class="palette" aria-label="C3dMCP Civil 3D palette">
+      <header class="titlebar">
+        <svg class="appmark"><use href="#i-app"/></svg>
+        <span class="title">C3dMCP</span>
+        <span class="title-sub">Agent activity</span>
+        <span class="title-spacer"></span>
+        <button class="icon-btn" title="Settings"><svg class="icon"><use href="#i-settings"/></svg></button>
+      </header>
+
+      <section class="section">
+        <div class="section-head">
+          <svg class="icon"><use href="#i-instance"/></svg> Instance
+          <span class="count">local</span>
+        </div>
+        <div class="section-body">
+          <div class="instance-top">
+            <div class="product">
+              <strong>Civil 3D 2026</strong>
+              <small class="mono">pid 18472</small>
+            </div>
+            <div class="port-block">
+              <div>
+                <div class="port-meta">Port</div>
+                <div class="port-number">48731</div>
+              </div>
+              <button class="copy-btn" title="Copy port">
+                <svg class="icon"><use href="#i-copy"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="status-line">
+            <span class="chip live"><span class="state-dot"></span>Listening</span>
+            <span class="muted mono">127.0.0.1</span>
+            <span class="thread"><span class="state-dot"></span>main thread responsive</span>
+          </div>
+          <div class="drawing-row" title="D:\Projects\NorthPlant\NP_Utilities_RevC.dwg">
+            <svg class="icon muted"><use href="#i-drawing"/></svg>
+            <span class="ellipsis">NP_Utilities_RevC.dwg</span>
+            <span class="mono muted">42.8 MB</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <svg class="icon"><use href="#i-payload"/></svg> Payload
+          <span class="count">loaded</span>
+        </div>
+        <div class="section-body">
+          <div class="payload-grid">
+            <div>
+              <div class="payload-id ellipsis" title="Civil3DInfoWorksAddin_r41">Civil3DInfoWorksAddin_r41</div>
+              <div class="muted">Loaded today at <span class="mono">10:18:44.287</span></div>
+            </div>
+            <button class="button"><svg class="icon"><use href="#i-reload"/></svg>Reload last</button>
+          </div>
+          <div class="error-collapsed">&gt; Last reload error <span class="muted">- none</span></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <svg class="icon"><use href="#i-runs"/></svg> Runs
+          <span class="count">5 recent</span>
+        </div>
+        <div class="run-list">
+          <div class="run-row selected">
+            <div class="run-id">0007</div>
+            <div>
+              <div class="run-command">IMPORTIRRG</div>
+              <div class="run-meta"><span class="by-label">by </span>payload - <span class="mono">10:21:26</span></div>
+            </div>
+            <div class="run-state">
+              <span class="chip warn"><svg class="icon spin"><use href="#i-draining"/></svg>draining</span>
+              <span class="duration">00:18.442</span>
+            </div>
+          </div>
+          <div class="run-row">
+            <div class="run-id">0006</div>
+            <div>
+              <div class="run-command">VALIDATEPRESSURE</div>
+              <div class="run-meta"><span class="by-label">by </span>idle-ping - <span class="mono">10:19:03</span></div>
+            </div>
+            <div class="run-state">
+              <span class="chip ok"><svg class="icon"><use href="#i-completed"/></svg>completed</span>
+              <span class="duration">02:06.815</span>
+            </div>
+          </div>
+          <div class="run-row">
+            <div class="run-id">0005</div>
+            <div>
+              <div class="run-command">PLACEVALVES</div>
+              <div class="run-meta"><span class="by-label">by </span>button - <span class="mono">10:14:52</span></div>
+            </div>
+            <div class="run-state">
+              <span class="chip fail"><svg class="icon"><use href="#i-failed"/></svg>failed</span>
+              <span class="duration">00:47.106</span>
+            </div>
+          </div>
+          <div class="run-row">
+            <div class="run-id">0004</div>
+            <div>
+              <div class="run-command">REBUILDCORRIDOR</div>
+              <div class="run-meta"><span class="by-label">by </span>unlock - <span class="mono">10:10:11</span></div>
+            </div>
+            <div class="run-state">
+              <span class="chip neutral">abandoned</span>
+              <span class="duration">04:30.000</span>
+            </div>
+          </div>
+          <div class="run-row">
+            <div class="run-id">0003</div>
+            <div>
+              <div class="run-command">SCANNETWORK</div>
+              <div class="run-meta"><span class="by-label">by </span>payload - <span class="mono">10:07:40</span></div>
+            </div>
+            <div class="run-state">
+              <span class="chip live"><svg class="icon"><use href="#i-running"/></svg>running</span>
+              <span class="duration">00:12.334</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <svg class="icon"><use href="#i-log"/></svg> Live log
+          <span class="count">run 0007 - 148 entries</span>
+        </div>
+        <div class="filters">
+          <button class="filter-chip on">log 61</button>
+          <button class="filter-chip on">diag 39</button>
+          <button class="filter-chip on">note 18</button>
+          <button class="filter-chip">feedback 7</button>
+          <button class="filter-chip on">host 23</button>
+          <input class="filter-text" aria-label="Filter logs" placeholder="filter text..." value="valve">
+          <div class="toggles">
+            <label class="check"><input type="checkbox"> diag failed only</label>
+            <label class="check"><input type="checkbox" checked> auto-scroll</label>
+            <span class="muted mono" style="margin-left:auto">139-148 / 148</span>
+          </div>
+        </div>
+        <div class="log-list" aria-label="Selected run log">
+          <div class="log-line"><span class="time">10:21:29.841</span><span class="src host">[host]</span><span class="log-msg">document lock acquired</span></div>
+          <div class="log-line"><span class="time">10:21:29.867</span><span class="src log">[log]</span><span class="log-msg">reading network "IRR-MAIN-A"</span></div>
+          <div class="log-line"><span class="time">10:21:29.901</span><span class="src note">[note]</span><span class="log-msg">candidate valve at bend P-118</span></div>
+          <div class="log-line good"><span class="time">10:21:29.934</span><span class="src diag">[diag]</span><span class="log-msg">ok=true name=network_open data={parts:86}</span></div>
+          <div class="log-line"><span class="time">10:21:29.952</span><span class="src log">[log]</span><span class="log-msg">station=4+72.19 offset=0.000</span></div>
+          <div class="log-line"><span class="time">10:21:29.974</span><span class="src host">[host]</span><span class="log-msg">transaction 44b2 started</span></div>
+          <div class="log-line error"><span class="time">10:21:30.001</span><span class="src diag">[diag]</span><span class="log-msg">ok=false name=min_clearance data={actual:0.11m, required:0.30m}</span></div>
+          <div class="log-line"><span class="time">10:21:30.026</span><span class="src note">[note]</span><span class="log-msg">rotating valve block to tangent bisector</span></div>
+          <div class="log-line error"><span class="time">10:21:30.103</span><span class="src diag">[diag]</span><span class="log-msg">ok=false name=alignment data={error:7.4deg}</span></div>
+          <div class="log-line"><span class="time">10:21:30.171</span><span class="src feedback">[feedback]</span><span class="log-msg">reviewer: valve conflicts with elbow envelope</span></div>
+          <div class="log-line"><span class="time">10:21:30.244</span><span class="src log">[log]</span><span class="log-msg">rollback candidate entity 8AF31</span></div>
+          <div class="log-line"><span class="time">10:21:30.311</span><span class="src host">[host]</span><span class="log-msg">idle requested; draining callbacks=2</span></div>
+          <div class="log-line"><span class="time">10:21:30.359</span><span class="src log">[log]</span><span class="log-msg">waiting for main-thread idle cycle 2/3</span></div>
+          <div class="log-line good"><span class="time">10:21:30.400</span><span class="src diag">[diag]</span><span class="log-msg">ok=true name=drawing_clean data={modified:true}</span></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <svg class="icon"><use href="#i-actions"/></svg> Actions
+          <span class="count">run 0007</span>
+        </div>
+        <div class="section-body actions">
+          <button class="button primary wide">[x]&nbsp; Mark run finished</button>
+          <button class="button">-&gt;&nbsp; Idle ping now</button>
+          <button class="button">+&nbsp; Baseline</button>
+          <div class="split">
+            <button class="button">&lt;-&nbsp; Reset</button>
+            <button class="button menu" title="Soft or hard reset">v</button>
+          </div>
+          <div class="idle-streak">
+            <span>idle <strong class="mono">2/3</strong>, last <strong class="mono">41 ms</strong></span>
+            <span class="streak-dots" aria-label="Two of three idle checks"><i class="on"></i><i class="on"></i><i></i></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section escalation">
+        <div class="section-head">
+          <svg class="icon"><use href="#i-escalation"/></svg> Escalation
+          <span class="count mono">esc-2</span>
+        </div>
+        <div class="section-body">
+          <div class="esc-title">Escalation esc-2: 2 failed rounds on "valve at bend"</div>
+          <div class="verdicts">
+            <div class="verdict">
+              <div class="verdict-head"><strong>Round 1</strong><span class="chip fail">failed</span></div>
+              <div class="reason">Valve intersects the elbow maintenance envelope.</div>
+              <div class="checks">clearance - collision</div>
+            </div>
+            <div class="verdict">
+              <div class="verdict-head"><strong>Round 2</strong><span class="chip fail">failed</span></div>
+              <div class="reason">Rotation reduced clearance and broke alignment.</div>
+              <div class="checks">min_clearance - alignment</div>
+            </div>
+          </div>
+          <div class="esc-actions">
+            <button class="button primary">-&gt;&nbsp; Climb</button>
+            <button class="button">-&gt;&nbsp; Retry with note</button>
+            <button class="button">~&nbsp; New approach</button>
+            <button class="button danger">[]&nbsp; Stop</button>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="tail" aria-label="Host log tail">
+          <div>10:21:30.311 INF idle requested run=0007</div>
+          <div>10:21:30.359 DBG callbacks remaining=2</div>
+          <div>10:21:30.400 INF heartbeat main=responsive</div>
+        </div>
+        <div class="footer-meta">
+          <svg class="icon"><use href="#i-folder"/></svg>
+          <span class="footer-path" title="C:\ProgramData\C3dMCP\2026\instances\18472">C:\ProgramData\C3dMCP\2026\instances\18472</span>
+          <span class="mono">host 0.9.14</span>
+        </div>
+      </footer>
+    </aside>
+  </div>
+
+  <div class="variant-wrap">
+    <div class="variant-label">Narrow collapse - 320 px</div>
+    <aside class="palette narrow" aria-label="C3dMCP narrow palette">
+      <header class="titlebar">
+        <svg class="appmark"><use href="#i-app"/></svg>
+        <span class="title">C3dMCP</span>
+        <span class="title-spacer"></span>
+        <button class="icon-btn" title="Settings"><svg class="icon"><use href="#i-settings"/></svg></button>
+      </header>
+
+      <section class="section">
+        <div class="section-head">
+          <svg class="icon"><use href="#i-instance"/></svg> Instance
+        </div>
+        <div class="section-body">
+          <div class="instance-top">
+            <div class="product">
+              <strong>Civil 3D 2026</strong>
+              <small class="mono">pid 18472</small>
+            </div>
+            <div class="port-block">
+              <div>
+                <div class="port-meta">Port</div>
+                <div class="port-number">48731</div>
+              </div>
+              <button class="copy-btn" title="Copy port">
+                <svg class="icon"><use href="#i-copy"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="status-line">
+            <span class="chip live"><span class="state-dot"></span>Listening</span>
+            <span class="thread"><span class="state-dot"></span>responsive</span>
+          </div>
+          <div class="drawing-row">
+            <svg class="icon muted"><use href="#i-drawing"/></svg>
+            <span class="ellipsis">NP_Utilities_RevC.dwg</span>
+            <span class="mono muted">42.8M</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <svg class="icon"><use href="#i-runs"/></svg> Runs
+          <span class="count">5</span>
+        </div>
+        <div class="run-list">
+          <div class="run-row selected">
+            <div class="run-id">0007</div>
+            <div>
+              <div class="run-command">IMPORTIRRG</div>
+              <div class="run-meta"><span class="by-label">by </span>payload - 10:21</div>
+            </div>
+            <div class="run-state">
+              <span class="chip warn"><svg class="icon spin"><use href="#i-draining"/></svg>draining</span>
+              <span class="duration">00:18</span>
+            </div>
+          </div>
+          <div class="run-row">
+            <div class="run-id">0006</div>
+            <div>
+              <div class="run-command">VALIDATEPRESSURE</div>
+              <div class="run-meta"><span class="by-label">by </span>idle-ping - 10:19</div>
+            </div>
+            <div class="run-state">
+              <span class="chip ok">completed</span>
+              <span class="duration">02:06</span>
+            </div>
+          </div>
+          <div class="run-row">
+            <div class="run-id">0005</div>
+            <div>
+              <div class="run-command">PLACEVALVES</div>
+              <div class="run-meta"><span class="by-label">by </span>button - 10:14</div>
+            </div>
+            <div class="run-state">
+              <span class="chip fail">failed</span>
+              <span class="duration">00:47</span>
+            </div>
+          </div>
+          <div class="run-row">
+            <div class="run-id">0004</div>
+            <div>
+              <div class="run-command">REBUILDCORRIDOR</div>
+              <div class="run-meta"><span class="by-label">by </span>unlock - 10:10</div>
+            </div>
+            <div class="run-state">
+              <span class="chip neutral">abandoned</span>
+              <span class="duration">04:30</span>
+            </div>
+          </div>
+        </div>
+        <div class="narrow-note">Secondary labels shorten; command names and state remain visible.</div>
+      </section>
+    </aside>
+  </div>
+</main>
+</body>
+</html>
+```
+
+```svg-sprite
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="instance" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+    <rect x="2.5" y="2.5" width="11" height="11"/><path d="M5 5h6v6H5zM1 6h1.5M1 10h1.5M13.5 6H15M13.5 10H15"/>
+  </symbol>
+  <symbol id="port" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M2 5.5h4v-3M14 10.5h-4v3M6 5.5h4v5H6z"/>
+  </symbol>
+  <symbol id="copy" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <rect x="5.5" y="5.5" width="7.5" height="8"/><path d="M10.5 5.5V2.5H3v8h2.5"/>
+  </symbol>
+  <symbol id="listener-ok" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
+    <path d="M3 8a5 5 0 0 1 10 0M5.5 8a2.5 2.5 0 0 1 5 0M8 8v5M6 13h4"/>
+  </symbol>
+  <symbol id="listener-bad" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
+    <path d="M3 8a5 5 0 0 1 8.4-3.7M5.5 8a2.5 2.5 0 0 1 3.8-2.1M8 8v5M6 13h4M2.5 2.5l11 11"/>
+  </symbol>
+  <symbol id="drawing" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter">
+    <path d="M3 1.75h6l4 4V14.25H3zM9 1.75v4h4M5 10l2-2 1.5 1.5L11 7"/>
+  </symbol>
+  <symbol id="payload" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter">
+    <path d="M8 1.5 13 4v8L8 14.5 3 12V4zM3 4l5 2.5L13 4M8 6.5v8"/>
+  </symbol>
+  <symbol id="reload" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
+    <path d="M13.5 7A5.5 5.5 0 1 0 12 11M13.5 3v4h-4"/>
+  </symbol>
+  <symbol id="runs" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M3 2v12M5.5 4H13M5.5 8H13M5.5 12H13"/>
+    <circle cx="3" cy="4" r=".8" fill="currentColor" stroke="none"/><circle cx="3" cy="8" r=".8" fill="currentColor" stroke="none"/><circle cx="3" cy="12" r=".8" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="run-running" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter">
+    <circle cx="8" cy="8" r="5.5"/><path d="m6.5 5 4 3-4 3z"/>
+  </symbol>
+  <symbol id="run-draining" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
+    <path d="M8 2a6 6 0 0 1 5.7 4M14 8a6 6 0 0 1-4 5.65M8 14a6 6 0 0 1-5.7-4M2 8a6 6 0 0 1 4-5.65"/>
+  </symbol>
+  <symbol id="run-completed" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <circle cx="8" cy="8" r="5.5"/><path d="m5 8 2 2 4-4"/>
+  </symbol>
+  <symbol id="run-failed" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <circle cx="8" cy="8" r="5.5"/><path d="m6 6 4 4M10 6l-4 4"/>
+  </symbol>
+  <symbol id="run-abandoned" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <circle cx="8" cy="8" r="5.5"/><path d="M5 8h6"/>
+  </symbol>
+  <symbol id="log" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M3 2.5h10v11H3zM5 5h6M5 8h6M5 11h4"/>
+  </symbol>
+  <symbol id="diag-ok" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M2.5 3.5h4M2.5 8h3M2.5 12.5h4M8 8l2 2 3.5-4"/>
+  </symbol>
+  <symbol id="diag-fail" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M2.5 3.5h4M2.5 8h3M2.5 12.5h4M9 6l4 4M13 6l-4 4"/>
+  </symbol>
+  <symbol id="note" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter">
+    <path d="M3 2.5h10v8l-3 3H3zM10 13.5v-3h3M5 5.5h6M5 8h4"/>
+  </symbol>
+  <symbol id="feedback" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter">
+    <path d="M2 2.5h12v8H8l-3.5 3v-3H2zM5 5.5h6M5 8h4"/>
+  </symbol>
+  <symbol id="host" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <rect x="2.5" y="2" width="11" height="4"/><rect x="2.5" y="10" width="11" height="4"/><path d="M4.5 4h1M4.5 12h1M8 6v4"/>
+  </symbol>
+  <symbol id="filter" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter">
+    <path d="M2 3h12L9.5 8v4.5L6.5 14V8z"/>
+  </symbol>
+  <symbol id="autoscroll" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M3 2.5h10v11H3zM8 4.5v6M5.5 8 8 10.5 10.5 8"/>
+  </symbol>
+  <symbol id="mark-finished" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M2.5 8.5 6 12l7.5-8"/>
+  </symbol>
+  <symbol id="idle-ping" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
+    <path d="M1.5 8h2l1.2-3.5L7 12l2-7 1.5 3H14.5"/>
+  </symbol>
+  <symbol id="baseline" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M2 12.5h12M3.5 9.5h9M5 6.5h6M8 2v11"/>
+  </symbol>
+  <symbol id="reset" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
+    <path d="M3 5.5A5.5 5.5 0 1 1 2.5 10M3 2v3.5h3.5"/>
+  </symbol>
+  <symbol id="escalation" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter">
+    <path d="M8 2 14 13H2zM8 6v3.5M8 11.5v.2"/>
+  </symbol>
+  <symbol id="climb" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M3 13 13 3M7 3h6v6M3 9v4h4"/>
+  </symbol>
+  <symbol id="retry" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
+    <path d="M13.5 7A5.5 5.5 0 1 0 12 11M13.5 3v4h-4M5 8h6"/>
+  </symbol>
+  <symbol id="new-approach" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M2 12c3 0 3-8 6-8s3 8 6 8M2 4c3 0 3 8 6 8s3-8 6-8"/>
+  </symbol>
+  <symbol id="stop" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <rect x="3" y="3" width="10" height="10"/>
+  </symbol>
+  <symbol id="folder" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter">
+    <path d="M1.5 4h5l1.3 1.5h6.7v7.5h-13zM1.5 4V2.5h4L7 4"/>
+  </symbol>
+  <symbol id="settings" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <circle cx="8" cy="8" r="2.2"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"/>
+  </symbol>
+  <symbol id="c3dmcp-app" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter">
+    <path d="m8 1.5 5.6 3.25v6.5L8 14.5l-5.6-3.25v-6.5zM5 5.5v3h3.5V11M8.5 8.5 11 6"/>
+  </symbol>
+</svg>
+```
+
+### Design notes
+
+- Dense, square-edged controls align with Civil 3D's dockable tool palettes.
+- The port is the strongest visual anchor; teal is reserved for live state and selection.
+- Monospace typography distinguishes identifiers, timestamps, durations, and diagnostics.
+- Failed diagnostics retain full structured data and use a dark-red row treatment.
+- Draining is the only animated state and respects reduced-motion preferences.
+- The 320 px variant preserves command and state while shortening secondary metadata.
+- Buttons are deliberately compact, with escalation choices grouped into a two-column grid.
