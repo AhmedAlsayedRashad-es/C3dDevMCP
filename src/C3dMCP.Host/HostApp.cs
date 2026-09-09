@@ -29,6 +29,8 @@ namespace C3dMCP.Host
         internal RealCivil3DHost Civil { get; private set; }
         internal HttpApi Api { get; private set; }
         internal InstanceRegistry Registry { get; private set; }
+        internal HotReloadService Reload { get; private set; }
+        internal RunManager Runs { get; private set; }
         internal Palette.PaletteHost PaletteHost { get; set; }
 
         public void Initialize()
@@ -40,6 +42,9 @@ namespace C3dMCP.Host
             try
             {
                 Civil = new RealCivil3DHost();
+                Reload = new HotReloadService(this);
+                Runs = new RunManager(this);
+                Runs.Changed += _ => PaletteHost?.Refresh();
 
                 var acquired = PortAcquirer.Acquire(State.Pid);
                 State.Port = acquired.Port;

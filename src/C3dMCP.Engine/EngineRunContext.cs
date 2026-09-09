@@ -28,22 +28,25 @@ namespace C3dMCP.Engine
         public IReadOnlyDictionary<string, string> Args { get; }
         public bool IsOpen => !_life.IsTerminal;
 
-        /// <summary>Count of Log/Note/Diagnostic/Feedback calls, for the idle-ping activity snapshot.</summary>
-        public long ActivitySeq => _log.Seq;
+        private long _activity;
+        /// <summary>Count of payload reports (Log/Note/Diagnostic/Feedback), excluding host lines,
+        /// for the idle-ping activity snapshot.</summary>
+        public long ActivitySeq => System.Threading.Interlocked.Read(ref _activity);
+        private void Bump() => System.Threading.Interlocked.Increment(ref _activity);
 
         void IRunContext.Log(string message, string level) => Safe(() =>
-            _log.Append("log", Fields("lvl", level ?? "info", "msg", message ?? string.Empty), late: _life.IsTerminal));
+            { Bump(); _log.Append("log", Fields("lvl", level ?? "info", "msg", message ?? string.Empty), late: _life.IsTerminal); });
 
         public void Diagnostic(string name, bool ok, IDictionary<string, object> data = null) => Safe(() =>
-            _log.Append("diag", Fields("name", name, "ok", ok, "data", data), late: _life.IsTerminal));
+            { Bump(); _log.Append("diag", Fields("name", name, "ok", ok, "data", data), late: _life.IsTerminal); });
 
         public void Note(string label, IDictionary<string, object> data = null) => Safe(() =>
-            _log.Append("note", Fields("msg", label, "data", data), late: _life.IsTerminal));
+            { Bump(); _log.Append("note", Fields("msg", label, "data", data), late: _life.IsTerminal); });
 
         public void Feedback(string op, string objectType, string handle, string label = null,
             string container = null, IDictionary<string, object> data = null) => Safe(() =>
-            _log.Append("feedback", Fields("op", op, "type", objectType, "handle", handle, "label", label, "container", container, "data", data),
-                late: _life.IsTerminal));
+            { Bump(); _log.Append("feedback", Fields("op", op, "type", objectType, "handle", handle, "label", label, "container", container, "data", data),
+                late: _life.IsTerminal); });
 
         public void Defer(int quietSeconds = 3) => Safe(() =>
         {
