@@ -110,8 +110,9 @@ public static class HookDecider
         if (projectDir == null) return res;
         try
         {
-            var psi = new ProcessStartInfo("git", "diff --name-only HEAD") { RedirectStandardOutput = true, UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = projectDir };
+            var psi = new ProcessStartInfo("git", "diff --name-only HEAD") { RedirectStandardInput = true, RedirectStandardOutput = true, UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = projectDir };
             using var p = Process.Start(psi)!;
+            p.StandardInput.Close();
             var text = p.StandardOutput.ReadToEnd();
             p.WaitForExit(5000);
             foreach (var line in text.Split('\n', StringSplitOptions.RemoveEmptyEntries))

@@ -92,7 +92,9 @@ static int Pack(string repo, string outDir)
     }
 
     // 3. this installer, the SDK for payload projects, the env folder, docs
-    File.Copy(Environment.ProcessPath!, Path.Combine(stage, "C3dMCP.Setup.exe"), true);
+    var setupOut = Path.Combine(outDir, "setup-publish");
+    Run("dotnet", $"publish \"{Path.Combine(repo, "src", "C3dMCP.Setup", "C3dMCP.Setup.csproj")}\" -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o \"{setupOut}\"", repo);
+    File.Copy(Path.Combine(setupOut, "C3dMCP.Setup.exe"), Path.Combine(stage, "C3dMCP.Setup.exe"), true);
     var sdkOut = Path.Combine(stage, "sdk");
     Directory.CreateDirectory(sdkOut);
     foreach (var name in new[] { "C3dMCP.Sdk", "C3dMCP.Engine" })

@@ -169,8 +169,9 @@ public static class EnvSync
 
     public static string Git(string cwd, string args)
     {
-        var psi = new ProcessStartInfo("git", args) { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = cwd };
+        var psi = new ProcessStartInfo("git", args) { RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = cwd };
         using var p = Process.Start(psi) ?? throw new ToolError("no-git", "git is not installed or not on PATH");
+        p.StandardInput.Close();
         var stdout = p.StandardOutput.ReadToEnd(); var stderr = p.StandardError.ReadToEnd();
         p.WaitForExit(120000);
         if (p.ExitCode != 0) throw new ToolError("git-failed", "git " + args + ": " + (stderr.Trim().Length > 0 ? stderr.Trim() : stdout.Trim()));

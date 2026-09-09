@@ -23,11 +23,12 @@ public static class PayloadBuilder
         var sw = Stopwatch.StartNew();
         var psi = new ProcessStartInfo("dotnet", $"build \"{csproj}\" -c {config} -nologo -v:m")
         {
-            RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true,
+            RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true,
             WorkingDirectory = Path.GetDirectoryName(csproj)!,
         };
         var lines = new List<string>();
         using var p = Process.Start(psi)!;
+        p.StandardInput.Close();
         p.OutputDataReceived += (_, e) => { if (e.Data != null) lock (lines) lines.Add(e.Data); };
         p.ErrorDataReceived += (_, e) => { if (e.Data != null) lock (lines) lines.Add(e.Data); };
         p.BeginOutputReadLine(); p.BeginErrorReadLine();
