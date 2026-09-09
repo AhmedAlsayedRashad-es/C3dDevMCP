@@ -22,17 +22,17 @@ public static class HookDecider
         if (rung == null) return new Decision(false, null);
         if (rung.AskHuman && !(c.HumanApproved.TryGetValue(c.Rung, out var ok) && ok))
             return Block($"rung {c.Rung} needs the user's approval; ask with AskUserQuestion, then c3d_cycle_record kind=approve");
-        var allowed = CycleState.AllowedAgents(c, p);
-        if (!allowed.Contains(sub))
-        {
-            var next = CycleState.Next(c, p);
-            return Block($"pipeline rung {c.Rung} expects {Describe(next)}; {sub} is not allowed now (allowed: {string.Join(", ", allowed)}). Use c3d_pipeline_set to change the pipeline if that is intended.");
-        }
         if (sub.Contains("implementer", StringComparison.OrdinalIgnoreCase))
         {
             if (c.LastPlanBlocked) return Block("the last plan is blocked: " + c.LastPlanSummary + "; resolve it (new plan or escalate) before implementing");
             if (c.Redispatch >= p.Ladder.RedispatchCeiling) return Block($"redispatch ceiling {p.Ladder.RedispatchCeiling} reached for this plan; escalate with c3d_cycle_record kind=escalate");
             if (c.State == "analyzing") return Block($"run {c.RunThisCycle} of this cycle has no verdict yet; dispatch c3d-analyzer and record its verdict with c3d_cycle_record kind=verdict first");
+        }
+        var allowed = CycleState.AllowedAgents(c, p);
+        if (!allowed.Contains(sub))
+        {
+            var next = CycleState.Next(c, p);
+            return Block($"pipeline rung {c.Rung} expects {Describe(next)}; {sub} is not allowed now (allowed: {string.Join(", ", allowed)}). Use c3d_pipeline_set to change the pipeline if that is intended.");
         }
         var model = input["tool_input"]?["model"]?.GetValue<string>();
         var step = rung.Steps.Where(s => s.Active).FirstOrDefault(s => string.Equals(p.Resolve(s).agent, sub, StringComparison.OrdinalIgnoreCase));
