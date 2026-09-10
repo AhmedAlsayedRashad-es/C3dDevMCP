@@ -35,6 +35,7 @@
       <local:BoolToBrushConverter x:Key="OkBrush" True="#63BD73" False="#E16C69"/>
       <local:StreakConverter x:Key="Streak"/>
       <local:UpperConverter x:Key="Upper"/>
+      <local:NullToVisibilityConverter x:Key="NullVis"/>
 
       <Style x:Key="Ico" TargetType="Path">
         <Setter Property="Stroke" Value="{Binding RelativeSource={RelativeSource AncestorType=ContentControl}, Path=Foreground, FallbackValue=#E6E6E6}"/>
@@ -234,6 +235,34 @@
         </ListBox.ItemTemplate>
       </ListBox>
 
+      <!-- COMMANDS: which AutoCAD commands the run actually executed -->
+      <Border Style="{StaticResource SectionHeader}">
+        <DockPanel>
+          <ContentControl Foreground="{StaticResource Muted}"><Path Style="{StaticResource Ico}" Data="{StaticResource icon.run-running}"/></ContentControl>
+          <TextBlock Style="{StaticResource H}" Text="COMMANDS" Margin="6,0,0,0"/>
+          <TextBlock Style="{StaticResource HRight}" Text="{Binding CommandsTitle}" DockPanel.Dock="Right" HorizontalAlignment="Right"/>
+        </DockPanel>
+      </Border>
+      <Border Background="{StaticResource Panel}" Padding="8,6">
+        <StackPanel>
+          <TextBlock Text="{Binding CommandRunning}" Foreground="{StaticResource Active}" FontFamily="Consolas" FontSize="11" Margin="0,0,0,4"
+                     Visibility="{Binding CommandRunning, Converter={StaticResource NullVis}}"/>
+          <ItemsControl ItemsSource="{Binding Commands}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Grid Margin="0,1,0,1">
+                  <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                  <TextBlock Style="{StaticResource Mono}" Text="{Binding Name}" TextTrimming="CharacterEllipsis"/>
+                  <TextBlock Grid.Column="1" Style="{StaticResource Mono}" Foreground="{StaticResource Muted}" Text="{Binding Detail}" Margin="8,0,0,0"/>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock Text="no AutoCAD command has executed in this run" Foreground="{StaticResource Dim}" FontSize="11"
+                     Visibility="{Binding NoCommands, Converter={StaticResource Vis}}"/>
+        </StackPanel>
+      </Border>
+
       <!-- LIVE LOG -->
       <Border Style="{StaticResource SectionHeader}">
         <DockPanel>
@@ -249,6 +278,7 @@
             <ToggleButton Tag="diag" IsChecked="True" Content="diag" Click="SrcChip_Click" Style="{DynamicResource ChipToggle}"/>
             <ToggleButton Tag="note" IsChecked="True" Content="note" Click="SrcChip_Click" Style="{DynamicResource ChipToggle}"/>
             <ToggleButton Tag="feedback" IsChecked="True" Content="feedback" Click="SrcChip_Click" Style="{DynamicResource ChipToggle}"/>
+            <ToggleButton Tag="cmd" IsChecked="True" Content="cmd" Click="SrcChip_Click" Style="{DynamicResource ChipToggle}"/>
             <ToggleButton Tag="host" IsChecked="True" Content="host" Click="SrcChip_Click" Style="{DynamicResource ChipToggle}"/>
             <TextBox Width="110" Margin="6,0,0,0" Text="{Binding Filter, UpdateSourceTrigger=PropertyChanged, Delay=250}" ToolTip="text filter"/>
           </WrapPanel>

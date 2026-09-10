@@ -46,6 +46,18 @@ namespace C3dMCP.Host.Palette
         public bool Late { get; set; }
     }
 
+    /// <summary>One AutoCAD command the run actually executed, tallied for the COMMANDS section.</summary>
+    public sealed class CommandRow
+    {
+        public string Name { get; set; }
+        public int Ran { get; set; }
+        public int Bad { get; set; }
+        public double TotalMs { get; set; }
+        public double MaxMs { get; set; }
+        public string Detail => Ran + " x   " + Ms(TotalMs) + "   max " + Ms(MaxMs) + (Bad > 0 ? "   " + Bad + " cancelled/failed" : "");
+        private static string Ms(double ms) => ms >= 1000 ? (ms / 1000).ToString("0.0") + " s" : Math.Round(ms) + " ms";
+    }
+
     public sealed class EscalationCard : Bindable
     {
         public string Id { get; set; }
@@ -87,6 +99,12 @@ namespace C3dMCP.Host.Palette
 
         // Log
         public ObservableCollection<LogItem> Log { get; } = new ObservableCollection<LogItem>();
+
+        // Commands: what the run actually made AutoCAD execute
+        public ObservableCollection<CommandRow> Commands { get; } = new ObservableCollection<CommandRow>();
+        private string _commandsTitle; public string CommandsTitle { get { return _commandsTitle; } set { Set(ref _commandsTitle, value); } }
+        private string _commandRunning; public string CommandRunning { get { return _commandRunning; } set { Set(ref _commandRunning, value); } }
+        private bool _noCommands = true; public bool NoCommands { get { return _noCommands; } set { Set(ref _noCommands, value); } }
         private string _logTitle; public string LogTitle { get { return _logTitle; } set { Set(ref _logTitle, value); } }
         private string _filter = ""; public string Filter { get { return _filter; } set { if (Set(ref _filter, value)) RebuildLog(); } }
         private bool _failedOnly; public bool FailedOnly { get { return _failedOnly; } set { if (Set(ref _failedOnly, value)) RebuildLog(); } }
@@ -181,6 +199,26 @@ namespace C3dMCP.Host.Palette
             _lastSeq[rec.RunId] = have;
             LogTitle = "RUN " + rec.RunId + " - " + rec.Log.Seq + " ENTRIES";
             Counts = Log.Count + " shown";
+            RebuildCommands(rec);
+        }
+
+        /// <summary>The COMMANDS section: read from the host's recorder, so it updates live while a
+        /// placement queue drains and answers "which commands ran, and which did not".</summary>
+        private void RebuildCommands(RunManager.RunRecord rec)
+        {
+            var rc = rec.Commands;
+            if (rc == null) { Commands.Clear(); CommandsTitle = "NOT RECORDED"; CommandRunning = null; NoCommands = true; return; }
+            var rows = new List<CommandRow>();
+            foreach (var kv in rc.Snapshot())
+                rows.Add(new CommandRow { Name = kv.Key, Ran = kv.Value.Ran, Bad = kv.Value.Cancelled + kv.Value.Failed, TotalMs = kv.Value.TotalMs, MaxMs = kv.Value.MaxMs });
+            rows.Sort((a, b) => b.TotalMs.CompareTo(a.TotalMs));
+            Commands.Clear();
+            foreach (var row in rows) Commands.Add(row);
+            long total = rc.Total;
+            CommandsTitle = total == 0 ? "NONE YET" : total + " RUN";
+            var running = rc.Running;
+            CommandRunning = running == null ? null : "running now: " + running;
+            NoCommands = rows.Count == 0;
         }
 
         public void RefilterLog() { _lastSeq.Remove(Selected?.RunId ?? ""); RebuildLog(); }
@@ -213,6 +251,13 @@ namespace C3dMCP.Host.Palette
                             it.FailedDiag = !ok;
                             it.Text = "ok=" + (ok ? "true" : "false") + " name=" + Str(r, "name") + data; break;
                         case "feedback": it.Text = Str(r, "op") + " " + Str(r, "type") + " " + Str(r, "handle") + (Str(r, "label") != "" ? " \"" + Str(r, "label") + "\"" : "") + data; break;
+                        case "cmd":
+                            var cevt = Str(r, "evt");
+                            it.FailedDiag = cevt == "fail";
+                            it.Text = cevt == "summary"
+                                ? "summary: " + Str(r, "commands") + " commands"
+                                : cevt + " " + Str(r, "name") + (r.TryGetProperty("ms", out var cms) ? "  " + cms.GetRawText() + " ms" : "");
+                            break;
                         case "host":
                             var evt = Str(r, "evt");
                             if (evt == "state") it.Text = "state " + Str(r, "state").ToLowerInvariant();

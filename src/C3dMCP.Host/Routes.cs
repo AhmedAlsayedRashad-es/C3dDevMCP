@@ -99,6 +99,7 @@ namespace C3dMCP.Host
                     elapsedMs = (long)((life.EndedUtc ?? DateTime.UtcNow) - life.CreatedUtc).TotalMilliseconds,
                     newLines = lines.ConvertAll(l => JsonSerializer.Deserialize<JsonElement>(l)),
                     idlePing = rec.Pinger?.Summary(),
+                    commands = rec.Commands == null ? null : new { total = rec.Commands.Total, running = rec.Commands.Running, byName = rec.Commands.Summary(6) },
                     error = life.Error,
                 };
             });
@@ -172,6 +173,7 @@ namespace C3dMCP.Host
                 state = l.State.ToString().ToLowerInvariant(), status = l.Status, by = l.By, inferred = l.Inferred ? (bool?)true : null,
                 deferred = l.Deferred, createdAt = l.CreatedUtc, startedAt = l.StartedUtc, endedAt = l.EndedUtc,
                 seq = rec.Log.Seq, error = l.Error, idlePing = rec.Pinger?.Summary(),
+                commands = rec.Commands == null ? null : new { total = rec.Commands.Total, running = rec.Commands.Running, byName = rec.Commands.Summary(6) },
             };
         }
     }

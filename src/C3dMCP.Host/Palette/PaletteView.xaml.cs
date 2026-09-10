@@ -163,6 +163,7 @@ namespace C3dMCP.Host.Palette
                 case "diag": return new SolidColorBrush(Color.FromRgb(0x63, 0xBD, 0x73));
                 case "note": return new SolidColorBrush(Color.FromRgb(0xD8, 0xA3, 0x47));
                 case "feedback": return new SolidColorBrush(Color.FromRgb(0xB0, 0x8C, 0xE0));
+                case "cmd": return new SolidColorBrush(Color.FromRgb(0x6F, 0xB3, 0xE8));
                 default: return new SolidColorBrush(Color.FromRgb(0x9A, 0x9A, 0x9A));
             }
         }
@@ -191,6 +192,12 @@ namespace C3dMCP.Host.Palette
             int streak = value is int i ? i : 0; int slot = int.Parse((string)p);
             return new SolidColorBrush(streak >= slot ? Color.FromRgb(0x36, 0xC2, 0xB4) : Color.FromRgb(0x3C, 0x3C, 0x3C));
         }
+        public object ConvertBack(object v, Type t, object p, CultureInfo c) => throw new NotSupportedException();
+    }
+
+    public sealed class NullToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type t, object p, CultureInfo c) => string.IsNullOrEmpty(value as string) ? Visibility.Collapsed : Visibility.Visible;
         public object ConvertBack(object v, Type t, object p, CultureInfo c) => throw new NotSupportedException();
     }
 

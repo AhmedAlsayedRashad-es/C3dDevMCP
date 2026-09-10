@@ -37,6 +37,7 @@ namespace C3dMCP.Host
             public int MaxDrainSeconds;
             public Timer DrainTimer;
             public IdlePinger Pinger;
+            public CommandRecorder Commands;
             public DateTime? DrainingSinceUtc;
         }
 
@@ -102,6 +103,7 @@ namespace C3dMCP.Host
             }
 
             Run.Current = rec.Ctx;
+            try { rec.Commands = new CommandRecorder(rec); rec.Commands.Start(); } catch (Exception ex) { HostLog.Write("command recorder failed to start: " + ex.Message); }
             rec.Life.MarkInvoking();
             WriteRunJson(rec);
             HostLog.Write("run " + rec.RunId + " " + rec.Command + " dispatched");
@@ -131,6 +133,7 @@ namespace C3dMCP.Host
                 st.ActiveRunId = null; st.ActiveRunState = null; st.ActiveRunSinceUtc = null;
                 try { rec.DrainTimer?.Dispose(); } catch { }
                 try { rec.Pinger?.Stop(); } catch { }
+                try { rec.Commands?.Stop(); } catch { }
                 if (ReferenceEquals(Run.Current, rec.Ctx)) Run.Current = null;
                 HostLog.Write("run " + rec.RunId + " " + t.To.ToString().ToLowerInvariant() + " by " + t.By + (t.Inferred ? " (inferred)" : ""));
             }
@@ -161,6 +164,7 @@ namespace C3dMCP.Host
                     ["instance"] = new Dictionary<string, object> { ["pid"] = _app.State.Pid, ["port"] = _app.State.Port, ["version"] = _app.State.CivilVersion },
                     ["loadedVersion"] = _app.State.PayloadVersion,
                     ["idlePing"] = rec.Pinger?.Summary(),
+                    ["commands"] = rec.Commands == null ? null : new Dictionary<string, object> { ["total"] = rec.Commands.Total, ["running"] = rec.Commands.Running, ["byName"] = rec.Commands.Summary() },
                 };
                 RunDocument.Write(Path.Combine(rec.RunDir, "run.json"), rec.Life, extra, rec.Log.Seq);
             }

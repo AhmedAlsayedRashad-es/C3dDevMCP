@@ -65,14 +65,14 @@ public static class LogQuery
     /// <summary>Counts by src and failed diagnostics, for verdict summaries.</summary>
     public static Dictionary<string, long> Counts(string runJsonl)
     {
-        var d = new Dictionary<string, long> { ["log"] = 0, ["diag"] = 0, ["diagFailed"] = 0, ["note"] = 0, ["feedback"] = 0, ["host"] = 0, ["late"] = 0 };
+        var d = new Dictionary<string, long> { ["log"] = 0, ["diag"] = 0, ["diagFailed"] = 0, ["note"] = 0, ["feedback"] = 0, ["host"] = 0, ["cmd"] = 0, ["late"] = 0 };
         if (!File.Exists(runJsonl)) return d;
         using var fs = new FileStream(runJsonl, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         using var sr = new StreamReader(fs);
         string? line;
         while ((line = sr.ReadLine()) != null)
         {
-            foreach (var k in new[] { "log", "diag", "note", "feedback", "host" })
+            foreach (var k in new[] { "log", "diag", "note", "feedback", "host", "cmd" })
                 if (line.Contains("\"src\":\"" + k + "\"", StringComparison.Ordinal)) { d[k]++; break; }
             if (line.Contains("\"src\":\"diag\"", StringComparison.Ordinal) && line.Contains("\"ok\":false", StringComparison.Ordinal)) d["diagFailed"]++;
             if (line.Contains("\"late\":true", StringComparison.Ordinal)) d["late"]++;

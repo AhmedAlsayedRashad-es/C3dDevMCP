@@ -125,7 +125,7 @@ public sealed class RunTools
             return Compact.Render(new
             {
                 ok = true, runId, state = s.State, status = s.Status, by = s.By, inferred = s.Inferred, terminal = s.Terminal,
-                timedOut = !s.Terminal, seq = s.Seq, elapsedMs = w["elapsedMs"]?.GetValue<long>(), idlePing = w["idlePing"], counts = s.Counts, error = w["error"]?.GetValue<string>(),
+                timedOut = !s.Terminal, seq = s.Seq, elapsedMs = w["elapsedMs"]?.GetValue<long>(), idlePing = w["idlePing"], commands = w["commands"], counts = s.Counts, error = w["error"]?.GetValue<string>(),
                 tail = s.Tail, hint = s.Hint,
             });
         }
@@ -139,7 +139,7 @@ public sealed class RunTools
         [Description("Last N matching lines")] int? tail = null,
         [Description("Regex, case-insensitive, matched against the raw JSON line")] string? grep = null,
         [Description("Only lines with seq greater than this")] long? sinceSeq = null,
-        [Description("One of: log, diag, note, feedback, host")] string? src = null,
+        [Description("One of: log, diag, note, feedback, host, cmd (cmd = the AutoCAD commands that actually executed)")] string? src = null,
         [Description("Max lines (default 40, max 200)")] int max = 40,
         [Description("Task id when the run id is not unique across tasks")] string? taskId = null,
         [Description("Project folder (holds c3d.json). Defaults to the current directory.")] string? projectDir = null)
@@ -251,6 +251,7 @@ public sealed class RunTools
             case "note": return "[note] " + l["msg"] + (l["data"] != null ? " " + l["data"]!.ToJsonString() : "");
             case "diag": return "[diag] " + l["name"] + " ok=" + l["ok"] + (l["data"] != null ? " " + l["data"]!.ToJsonString() : "");
             case "feedback": return "[feedback] " + l["op"] + " " + l["type"] + " " + l["handle"];
+            case "cmd": return "[cmd] " + l["evt"] + " " + l["name"] + (l["ms"] != null ? " " + l["ms"] + "ms" : "");
             case "host": return "[host] " + (l["evt"]?.ToString() == "state" ? "state " + l["state"] : l["evt"]?.ToString() == "complete" ? "complete " + l["status"] + " by " + l["by"] : l["evt"]?.ToString() == "idle-ping" ? "idle-ping " + l["ms"] + "ms " + l["verdict"] : l.ToJsonString());
             default: return l.ToJsonString();
         }
