@@ -34,11 +34,16 @@ namespace C3dMCP.Host.Palette
         public void Touch() { Raise(nameof(ByLine)); }
     }
 
+    /// <summary>One rendered log line. These MUST be properties: WPF data binding ignores fields,
+    /// so a field-backed LogItem renders 61 empty rows.</summary>
     public sealed class LogItem
     {
-        public long Seq;
-        public string Time, Src, Text;
-        public bool FailedDiag, Late;
+        public long Seq { get; set; }
+        public string Time { get; set; }
+        public string Src { get; set; }
+        public string Text { get; set; }
+        public bool FailedDiag { get; set; }
+        public bool Late { get; set; }
     }
 
     public sealed class EscalationCard : Bindable
