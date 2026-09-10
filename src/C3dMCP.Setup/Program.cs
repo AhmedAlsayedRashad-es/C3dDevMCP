@@ -92,7 +92,8 @@ static int Pack(string repo, string outDir)
     }
 
     // 3. this installer, the SDK for payload projects, the env folder, docs
-    var setupOut = Path.Combine(outDir, "setup-publish");
+    // A unique folder: publishing over the exe we are running from fails with "used by another process".
+    var setupOut = Path.Combine(Path.GetTempPath(), "c3dmcp-setup-" + Guid.NewGuid().ToString("N")[..8]);
     Run("dotnet", $"publish \"{Path.Combine(repo, "src", "C3dMCP.Setup", "C3dMCP.Setup.csproj")}\" -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o \"{setupOut}\"", repo);
     File.Copy(Path.Combine(setupOut, "C3dMCP.Setup.exe"), Path.Combine(stage, "C3dMCP.Setup.exe"), true);
     var sdkOut = Path.Combine(stage, "sdk");
