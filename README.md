@@ -31,3 +31,11 @@ project's P29 signature); with the machine idle the run stays `draining` and the
 correctly. Remaining harness items: add the bundle folder to Civil3D TRUSTEDPATHS in the installer so
 the unsigned-DLL dialog stops blocking startup, and add a COM-channel probe to the idle pinger so it
 reports `queued-input-dead` instead of `mainthreadbusy`.
+
+### The command log
+
+The host records every AutoCAD command a run executes (`CommandWillStart` / `Ended` / `Cancelled` /
+`Failed`) into the run's own stream as `src: "cmd"` lines with the command name and its duration, and
+a per-name summary when the run ends. The palette shows a COMMANDS section; the agent reads the same
+with `c3d_log_query src=cmd`. That is what separates a stalled queue from a slow one: a stalled
+IMPORTIRRG shows `VSCURRENT` and `-VIEW` executing and no `AECCADD*` after them.
